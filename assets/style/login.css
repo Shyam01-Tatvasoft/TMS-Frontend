@@ -1,0 +1,28 @@
+@media (min-width: 768px) {
+    html {
+      font-size: 16px;
+    }
+  }
+   
+  @media (max-width: 768px) {
+    html {
+      font-size: 16px;
+    }
+    #login-img{
+      display: none !important;
+    }
+  }
+  .form-input-div {
+    position: relative;
+  }
+   
+  .form-input-icon {
+    position: absolute;
+    right: 10px;
+    top: 22%;
+  }
+   
+  #login-img {
+    max-height: 100vh;
+    object-fit: cover;
+  }

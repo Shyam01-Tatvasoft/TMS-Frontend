@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <div id="head-placeholder"></div>
+    <link rel="stylesheet" href="../style/login.css" />
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid d-flex p-0 vh-100" id="login-page">
+      <div class="row m-0 w-100">
+        <section
+          class="col-md-6 d-flex p-0 login-img d-none d-md-block align-items-center my-auto"
+        >
+          <img
+            src="../images/login.jpg"
+            alt="pizzashop_background"
+            class="img-fluid"
+            id="login-img"
+          />
+        </section>
+        <section
+          class="col-12 col-md-6 d-flex justify-content-center align-items-center"
+          id="login-form-section"
+        >
+          <div
+            class="col-xl-6 justify-content-center bg-light p-5 border rounded-2 shadow"
+          >
+            <div class="row mb-5">
+              <div class="d-flex align-items-center justify-content-center p-0">
+                <h1 class="text-dark">Login</h1>
+              </div>
+            </div>
+            <div class="row d-flex justify-content-center align-items-center">
+              <h5 class="text-center"></h5>
+              <h5 class="text-center">Task Management System</h5>
+              <form id="loginForm" method="post">
+                <div class="form-input-div mt-3">
+                  <input
+                    type="text"
+                    placeholder="Email*"
+                    class="form-control p-2"
+                    name="Email"
+                    id="email"
+                  />
+                  <span class="form-input-icon"
+                    ><i class="fa-solid fa-user" style="color: gray"></i>
+                  </span>
+                </div>
+                <span id="emailError" class="text-danger fs-6 mx-2 mb-3"></span>
+                <div class="form-input-div mt-3">
+                  <input
+                    type="password"
+                    placeholder="Password*"
+                    class="form-control p-2"
+                    name="Password"
+                    id="Password"
+                  />
+                  <span class="form-input-icon"
+                    ><i
+                      class="fa-solid fa-eye"
+                      id="eye-icon"
+                      style="color: gray"
+                    ></i>
+                  </span>
+                </div>
+                <span
+                  id="passwordError"
+                  class="text-danger fs-6 mx-2 mb-3"
+                ></span>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="rememberMe"
+                    name="RememberMe"
+                  />
+                  <label class="form-check-label" for="flexCheckDefault">
+                    Remember me
+                  </label>
+                </div>
+                <div class="my-3">
+                  <button class="btn btn-dark w-100" type="submit">
+                    Login
+                  </button>
+                </div>
+              </form>
+
+              <div id="ForgotPassword" class="text-center">
+                <span>Don't have an account </span
+                ><a href="../templates/register.html">Register here</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div id="footer-placeholder"></div>
+    <script src="../script/login.js"></script>
+    <script src="../lib/jquery/dist/jquery.min.js"></script>
+    <script>
+      $(function () {
+        $("#head-placeholder").load("../partials/header.html");
+        $("#footer-placeholder").load("../partials/footer.html");
+      });
+    </script>
+  </body>
+</html>

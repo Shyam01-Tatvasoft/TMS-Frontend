@@ -1,0 +1,38 @@
+<html lang="en">
+  <head>
+    <div id="head-placeholder"></div>
+  </head>
+  <body>
+    <!-- Page Content -->
+    <div class="container mt-5">
+      <h2 class="text-center">Task Management System</h2>
+
+      <div class="text-center">
+        <button class="btn btn-outline-secondary mx-2" id="login-btn">Login</button>
+        <button class="btn btn-outline-secondary m-2" id="register-btn">Register</button>
+      </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="./assets/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Load common head and footer -->
+    <script>
+      // Load common head and footer dynamically
+      $(function () {
+        $("#head-placeholder").load("/assets/partials/header.html");
+        $("#footer-placeholder").load("/assets/partials/footer.html");
+      });
+
+      $(document).ready(function() {
+            $("#login-btn").click(function() {
+              window.location.href = "assets/templates/login.html"; // Change to your login page URL
+            });
+
+            $("#register-btn").click(function() {
+              window.location.href = "assets/templates/register.html"; // Change to your register page URL
+            });
+          });
+    </script>
+  </body>
+</html>
