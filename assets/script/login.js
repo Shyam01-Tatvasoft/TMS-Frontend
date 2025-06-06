@@ -1,17 +1,22 @@
 $(document).ready(function () {
+  var token = getAuthToken();
+  console.log(token)
+  // if(token)
+  // {
+  //   window.location.href = "Dashboard.html";
+  // }
+
   $("#loginForm").submit(function (e) {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
 
     let isValid = true;
 
-    // Clear previous errors
     $("#emailError").text("");
     $("#passwordError").text("");
 
     const email = $("#email").val().trim();
     const password = $("#Password").val().trim();
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email === "") {
       $("#emailError").text("Email is required.");
@@ -21,7 +26,6 @@ $(document).ready(function () {
       isValid = false;
     }
 
-    // Password validation
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
     if (password === "") {
@@ -48,8 +52,9 @@ $(document).ready(function () {
         success: function (response) {
           if (response.isSuccess) {
             toastr.success("Login successful!");
+            document.cookie = "AuthToken=" + response.result.token + "; secure; SameSite=None";
             setTimeout(function () {
-              window.location.href = "dashboard.html";
+              window.location.href = "assets/templates/dashboard.html";
             }, 1000); 
           } else {
             toastr.error("Login failed: " + response.errorMessage);
@@ -57,17 +62,19 @@ $(document).ready(function () {
           console.log("Login successful:", response);
         },
         error: function (xhr, status, error) {
-          console.error("Login failed:", error);
+          console.log(error)
+          toastr.error("Login failed: Invalid Credentials");
         },
       });
     }
+  });
 
 
-    $("#eye-icon").click(function () {
-      const input = $("#Password");
-      const type = input.attr("type") === "password" ? "text" : "password";
-      input.attr("type", type);
-      $(this).toggleClass("fa-eye fa-eye-slash");
-    });
+
+  $("#eye-icon").click(function () {
+    const input = $("#Password");
+    const type = input.attr("type") === "password" ? "text" : "password";
+    input.attr("type", type);
+    $(this).toggleClass("fa-eye fa-eye-slash");
   });
 });

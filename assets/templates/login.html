@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <div id="head-placeholder"></div>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Management System</title>
     <link rel="stylesheet" href="../style/login.css" />
-
+    <div id="head-placeholder"></div>
+    <!-- toaster-link -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
       rel="stylesheet"
@@ -31,14 +34,13 @@
           <div
             class="col-xl-6 justify-content-center bg-light p-5 border rounded-2 shadow"
           >
-            <div class="row mb-5">
+            <div class="row mb-2">
               <div class="d-flex align-items-center justify-content-center p-0">
                 <h1 class="text-dark">Login</h1>
               </div>
             </div>
             <div class="row d-flex justify-content-center align-items-center">
               <h5 class="text-center"></h5>
-              <h5 class="text-center">Task Management System</h5>
               <form id="loginForm" method="post">
                 <div class="form-input-div mt-3">
                   <input
@@ -101,13 +103,8 @@
       </div>
     </div>
     <div id="footer-placeholder"></div>
-    <script src="../script/login.js"></script>
     <script src="../lib/jquery/dist/jquery.min.js"></script>
-    <script>
-      $(function () {
-        $("#head-placeholder").load("../partials/header.html");
-        $("#footer-placeholder").load("../partials/footer.html");
-      });
-    </script>
+    <script src="../script/common.js"></script>
+    <script src="../script/login.js"></script>
   </body>
 </html>

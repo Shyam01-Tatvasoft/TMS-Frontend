@@ -4,6 +4,12 @@
     <div id="head-placeholder"></div>
     <title>Register</title>
     <link rel="stylesheet" href="../style/login.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 <body>
     <div class="container-fluid d-flex p-0 vh-100" id="login-page">
@@ -12,44 +18,63 @@
                 <img src="../images/login.jpg" alt="pizzashop_background" class="img-fluid" id="login-img" />
             </section>
             <section class="col-12 col-md-6 d-flex justify-content-center align-items-center"
-                id="login-form-section">
+                id="register-form-section">
                 <div class="col-xl-6 justify-content-center bg-light p-5 border rounded-2 shadow">
-                    <div class="row mb-5">
+                    <div class="row mb-2">
                         <div class="d-flex align-items-center justify-content-center p-0">
                             <h1 class="text-dark">Register</h1>
                         </div>
                     </div>
                     <div class="row d-flex justify-content-center align-items-center">
-                        <form  id="loginForm" method="post">
-                             <div class="form-input-div mt-3">
-                                <input type="text" placeholder="Name*" class="form-control p-2" name="Name" id="Name"
+                        <form  id="registerForm" method="post">
+                             <div class="form-input-div mt-1">
+                                <input type="text" placeholder="First Name*" class="form-control p-2" name="FirstName" id="FirstName"
                                     />
                                 <span class="form-input-icon"><i class="fa-solid fa-user" style="color: gray"></i>
                                 </span>
                             </div>
-                            <span id="nameError" class="text-danger fs-6 mx-2 mb-3" asp-validation-for="Name"></span>
-                
-                            <div class="form-input-div mt-3">
-                                <input type="text" placeholder="Email*" class="form-control p-2" name="Email" id="email"
+                            <span id="firstNameError" class="text-danger fs-6 mx-2 mb-3" ></span>
+                            <div class="form-input-div mt-1">
+                                <input type="text" placeholder="Last Name*" class="form-control p-2" name="LastName" id="LastName"
                                     />
+                                <span class="form-input-icon"><i class="fa-solid fa-user" style="color: gray"></i>
                                 </span>
                             </div>
-                            <span id="emailError" class="text-danger fs-6 mx-2 mb-3" asp-validation-for="Email"></span>
+                            <span id="lastNameError" class="text-danger fs-6 mx-2 mb-3" ></span>
                 
-                            <div class="form-input-div mt-3">
+                            <div class="form-input-div mt-1">
+                                <input type="text" placeholder="Email*" class="form-control p-2" name="Email" id="Email"
+                                    />
+                                <span class="form-input-icon"><i class="fa-solid fa-envelope" style="color: gray"></i></span>
+                            </div>
+                            <span id="emailError" class="text-danger fs-6 mx-2 mb-3" ></span>
+                
+                            <div class="form-input-div mt-1">
                                 <input type="password" placeholder="Password*" class="form-control p-2" name="Password"
                                     id="Password" />
                                 <span class="form-input-icon"><i class="fa-solid fa-eye" id="eye-icon" style="color: gray"></i>
                                 </span>
                             </div>
-                            <span id="passwordError" class="text-danger fs-6 mx-2 mb-3" asp-validation-for="Password"></span>
+                            <span id="passwordError" class="text-danger  mx-2 mb-3" ></span>
                 
-                            <div class="form-input-div mt-3">
+                            <div class="form-input-div mt-1">
                                 <input type="text" placeholder="Phone*" class="form-control p-2" name="Phone" id="Phone"
                                     />
                                 </span>
+                                <span class="form-input-icon"><i class="fa-solid fa-phone" style="color: gray"></i></span>
                             </div>
-                            <span id="phoneError" class="text-danger fs-6 mx-2 mb-3" asp-validation-for="Phone"></span>
+                            <span id="phoneError" class="text-danger fs-6 mx-2 mb-3" ></span>
+                            <div class="form-input-div mt-1">
+                                <!-- <div class="form-floating"> -->
+                                    <select class="form-select p-2" id="Country">
+                                        <!-- <option value="" selected hidden>Select Role</option> -->
+                                        
+                                    </select>
+                                    <!-- <label for="Country">Country*</label> -->
+                                    <span id="countryError" class="text-danger ms-2"></span>
+                                <!-- </div> -->
+                            </div>
+                            <span id="phoneError" class="text-danger fs-6 mx-2 mb-3" ></span>
                             <div class="my-3">
                                 <button class="btn btn-dark w-100" type="submit">Register</button>
                             </div>
@@ -64,11 +89,7 @@
     </div>
     <div id="footer-placeholder"></div>
     <script src="../lib/jquery/dist/jquery.min.js"></script>
-    <script>
-      $(function () {
-        $("#head-placeholder").load("../partials/header.html");
-        $("#footer-placeholder").load("../partials/footer.html");
-      });
-      </script>
+    <script src="../script/common.js"></script>
+    <script src="../script/register.js"></script>
 </body>
 </html>

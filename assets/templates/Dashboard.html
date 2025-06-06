@@ -4,14 +4,50 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard</title>
+        <!-- toaster-link -->
+        <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+        rel="stylesheet"
+      />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+      <div id="head-placeholder"></div>
   </head>
   <body>
-    <h1>Dashboard</h1>
-    <a style="text-decoration: none; color: white">
-      <button type="button" class="btn btn-outline-secondary">
-        <i class="fa fa-sign-out me-2"></i>
-        Logout
-      </button>
-    </a>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+      <div class="container-fluid">
+          <p class="navbar-brand fw-bold mb-0">Task Management System</p>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+              <ul class="navbar-nav  d-flex align-items-center ">
+                  <li class="nav-item ">
+                      <a class="nav-link text-dark 
+                          asp-controller="Admin" asp-action="Index">Users</a>
+                  </li>
+                  <li class="nav-item ">
+                      <a class="nav-link text-dark 
+                          asp-controller="Admin" asp-action="Bookings">Tasks</a>
+                  </li>
+              </ul>
+              <div>
+                  <a style="text-decoration: none; color: white">
+                      <button type="button" id="logout-btn" class="btn btn-outline-secondary">
+                          <i class="fa fa-sign-out me-2"></i>
+                          Logout
+                      </button>
+                  </a>
+              </div>
+          </div>
+      </div>
+  </nav>
+      <p id="userName"></p>
+
+    <div id="footer-placeholder"></div>
+    <script src="../lib/jquery/dist/jquery.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/Dashboard.js"></script>
   </body>
 </html>
