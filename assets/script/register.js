@@ -1,22 +1,17 @@
 $.ajax({
-  url: "https://country-state-city-search-rest-api.p.rapidapi.com/allcountries",
-  headers: {
-    "x-rapidapi-key": "04c359e481msh193f2089d017a37p159b72jsnd109f04920fc",
-    "x-rapidapi-host": "country-state-city-search-rest-api.p.rapidapi.com",
-  },
+  url: "http://localhost:5093/api/Authentication/countries",
   type: "GET",
   success: function (response) {
     $("#Country").append(
       '<option value="" data-id="" hidden>' + "Select Country" + "</option>"
     );
-    $.each(response, function (i, country) {
+    console.log(response.result);
+    $.each(response.result, function (i, country) {
       $("#Country").append(
         '<option value="' +
-          country.name +
-          '" data-id="' +
-          country.isoCode +
+          country.id +
           '">' +
-          country.name +
+          country.countryName +
           "</option>"
       );
     });
@@ -24,6 +19,37 @@ $.ajax({
   error: function (error) {
     console.log(error);
   },
+});
+
+$("#Country").change(function () {
+  const countryId = $(this).find("option:selected").val();
+  if (countryId) {
+    $.ajax({
+      url: "http://localhost:5093/api/Authentication/timezone/" + countryId,
+      type: "GET",
+      success: function (response) {
+        $("#Timezone")
+          .empty()
+          .append('<option value="" hidden>' + "Select Timezone" + "</option>");
+        $.each(response.result, function (i, timezone) {
+          $("#Timezone").append(
+            '<option value="' +
+              timezone.id +
+              '">' +
+              timezone.timezoneName +
+              "</option>"
+          );
+        });
+      },
+      error: function (error) {
+        console.log(error);
+      },
+    });
+  } else {
+    $("#Timezone")
+      .empty()
+      .append('<option value="" hidden>' + "Select Timezone" + "</option>");
+  }
 });
 
 $("#eye-icon").click(function () {
@@ -41,6 +67,8 @@ function handleFormSubmission() {
   const password = $("#Password").val().trim();
   const phone = $("#Phone").val().trim();
   const country = $("#Country").val();
+  const countryName = $("#Country option:selected").text();
+  const timezone = $("#Timezone").val();
 
   $(".text-danger").text("");
 
@@ -107,6 +135,11 @@ function handleFormSubmission() {
     isValid = false;
   }
 
+  if (!timezone) {
+    $("#timezoneError").text("Timezone is required.");
+    isValid = false;
+  }
+
   if (isValid) {
     $("#loginForm").off("submit").submit();
     const userRegisterDto = {
@@ -115,7 +148,9 @@ function handleFormSubmission() {
       Email: email,
       Password: password,
       Phone: phone,
-      Country: country,
+      Country: countryName,
+      CountryId:country,
+      Timezone: timezone
     };
 
     $.ajax({
@@ -127,7 +162,7 @@ function handleFormSubmission() {
         if (response.isSuccess) {
           toastr.success("Register successful!");
           setTimeout(function () {
-            window.location.href = "login.html";
+            window.location.href = "../../index.html";
           }, 1000);
         } else {
           toastr.error("Register failed: " + response.errorMessage);

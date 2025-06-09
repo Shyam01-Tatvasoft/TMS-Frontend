@@ -1,10 +1,14 @@
 $(document).ready(function () {
+  function getAuthToken() {
+    const match = document.cookie.match(/(^|;)\s*AuthToken=([^;]+)/);
+    return match ? match[2] : null;
+  }
   var token = getAuthToken();
   console.log(token)
-  // if(token)
-  // {
-  //   window.location.href = "Dashboard.html";
-  // }
+  if(token)
+  {
+    window.location.href = "assets/templates/Dashboard.html";
+  }
 
   $("#loginForm").submit(function (e) {
     e.preventDefault();
@@ -31,11 +35,6 @@ $(document).ready(function () {
     if (password === "") {
       $("#passwordError").text("Password is required.");
       isValid = false;
-    } else if (!passwordRegex.test(password)) {
-      $("#passwordError").text(
-        "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character."
-      );
-      isValid = false;
     }
     const rememberMe = $("#rememberMe").is(":checked");
 
@@ -52,10 +51,12 @@ $(document).ready(function () {
         success: function (response) {
           if (response.isSuccess) {
             toastr.success("Login successful!");
-            document.cookie = "AuthToken=" + response.result.token + "; secure; SameSite=None";
+            const expiryTime = rememberMe ? 24 * 60 * 60 : 30 * 60;
+            const expires = new Date(Date.now() + expiryTime * 1000).toUTCString();
+            document.cookie = "AuthToken=" + response.result.token + "; expires=" + expires + "; secure; SameSite=None";
             setTimeout(function () {
               window.location.href = "assets/templates/dashboard.html";
-            }, 1000); 
+            }, 1000);
           } else {
             toastr.error("Login failed: " + response.errorMessage);
           }

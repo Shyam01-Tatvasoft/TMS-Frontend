@@ -1,0 +1,72 @@
+<nav
+  class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"
+>
+  <div class="container-fluid">
+    <p class="navbar-brand fw-bold mb-0">Task Management System</p>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target=".navbar-collapse"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div
+      class="navbar-collapse collapse d-sm-inline-flex justify-content-between"
+    >
+      <ul class="navbar-nav d-flex align-items-center">
+        <li class="nav-item" id="nav-item-user" style="cursor: pointer">
+          <a class="nav-link text-dark" href="/assets/templates/User.html"
+            >Users</a
+          >
+        </li>
+        <li class="nav-item" style="cursor: pointer" id="nav-item-Task">
+          <a class="nav-link text-dark" href="/assets/templates/Dashboard.html"
+            >Tasks</a
+          >
+        </li>
+      </ul>
+      <div></div>
+      <div class="btn-group me-3">
+        <div class="btn-group dropstart">
+          <img
+            src="../images/profile.png"
+            alt="toggle-btn" 
+            aria-hidden="true"
+            data-bs-toggle="dropdown"
+            class="profile-photo"
+          />
+          <ul class="dropdown-menu py-0">
+            <li>
+              <div class="d-flex m-2 align-items-center">
+                <i
+                  class="fa fa-user"
+                  aria-hidden="true"
+                  class="profile-photo"
+                  style="cursor: pointer"
+                ></i>
+                <p id="userName" class="m-0 ms-2"></p>
+              </div>
+            </li>
+            <li>
+              <hr class="dropdown-divider" />
+            </li>
+            <li
+              data-bs-toggle="modal"
+              data-bs-target="#LogoutModel"
+              id="logout-btn"
+              style="cursor: pointer"
+            >
+              <a class="dropdown-item"
+                ><i class="fa fa-sign-out me-2" aria-hidden="true"></i>Logout</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

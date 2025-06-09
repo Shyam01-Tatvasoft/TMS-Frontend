@@ -24,7 +24,6 @@ $.ajax({
     $("#userName").text(formattedUser.firstName);
   },
   error: function (error) {
-    debugger;
     if (error.status == 401) {
       if (document.cookie.includes("AuthToken")) {
         document.cookie =

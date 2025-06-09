@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>User</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+            rel="stylesheet"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <div id="head-placeholder"></div>
+    </head>
+    <body>
+        <div id="navbar-container"></div>
+        <section>
+            <div class="d-flex justify-content-between mx-5">
+                <div>
+                        <h2 class="text-center">Users List</h2>
+                </div>
+                <div>
+                        <button id="AddUser" class="btn btn-outline-primary">Add User</button>
+                </div>
+            </div>
+            <div class="table-response">
+                <table class="table table-bordered table-striped" id="userTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Country</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Users will be appended here -->
+                        </tbody>
+                    </table>
+            </div>
+        </section>
+
+        <div id="footer-placeholder"></div>
+        <script src="../lib/jquery/dist/jquery.min.js"></script>
+        <script src="../script/common.js"></script>
+        <script src="../script/User.js"></script>
+    </body>
+</html>
+
+<!-- Modal for Add/Edit User -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title" id="userModalLabel"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                                <form id="userForm">
+                                        <input type="hidden" id="userId">
+                                        <div class="mb-3">
+                                                <label for="firstName" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="firstName" >
+                                                <span class="text-danger" id="firstNameError"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="lastName" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="lastName" >
+                                                <span class="text-danger" id="lastNameError"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="email" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="email" >
+                                                <span class="text-danger" id="emailError"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="password" class="form-label">Password</label>
+                                                <input type="password" class="form-control" id="password" >
+                                                <span class="text-danger" id="passwordError"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="phone" class="form-label">Phone</label>
+                                                <input type="text" class="form-control" id="phone" >
+                                                <span class="text-danger" id="phoneError"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="country" class="form-label">Country</label>
+                                                <select class="form-select" id="country" >
+                                                        <option value="">Select Country</option>
+                                                        <!-- Options will be populated here -->
+                                                </select>
+                                                <span class="text-danger" id="countryError"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="timezone" class="form-label">Timezone</label>
+                                                <select class="form-select" id="timezone" >
+                                                        <option value="">Select Timezone</option>
+                                                        <!-- Options will be populated here -->
+                                                </select>
+                                                <span class="text-danger" id="timezoneError"></span>
+                                        </div>
+                                </form>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit"  class="btn btn-primary">Save</button>
+                        </div>
+                </div>
+        </div>
+</div>
