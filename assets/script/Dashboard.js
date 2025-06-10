@@ -1,6 +1,6 @@
 const token = getAuthToken();
 if (!token) {
-  window.location.href = "login.html";
+  window.location.href = "/";
 }
 
 var user;

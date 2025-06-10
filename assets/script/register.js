@@ -64,11 +64,10 @@ function handleFormSubmission() {
   const firstName = $("#FirstName").val().trim();
   const lastName = $("#LastName").val().trim();
   const email = $("#Email").val().trim();
-  const password = $("#Password").val().trim();
   const phone = $("#Phone").val().trim();
   const country = $("#Country").val();
-  const countryName = $("#Country option:selected").text();
   const timezone = $("#Timezone").val();
+  const username = $("#Username").val().trim();
 
   $(".text-danger").text("");
 
@@ -107,18 +106,14 @@ function handleFormSubmission() {
     isValid = false;
   }
 
-  if (!password) {
-    $("#passwordError").text("Password is required.");
+  if (!username) {
+    $("#usernameError").text("Username is required.");
     isValid = false;
-  } else if (password.length < 8 || password.length > 200) {
-    $("#passwordError").text("Password must be between 8 and 200 characters.");
+  } else if (username.length > 50) {
+    $("#usernameError").text("Username should be less than 50 characters.");
     isValid = false;
-  } else if (
-    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/.test(password)
-  ) {
-    $("#passwordError").text(
-      "Password must include upper, lower, number, and special character."
-    );
+  } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    $("#usernameError").text("Username can only contain letters, numbers, and underscores.");
     isValid = false;
   }
 
@@ -146,11 +141,10 @@ function handleFormSubmission() {
       FirstName: firstName,
       LastName: lastName,
       Email: email,
-      Password: password,
       Phone: phone,
-      Country: countryName,
       CountryId:country,
-      Timezone: timezone
+      Timezone: timezone,
+      UserName: username
     };
 
     $.ajax({
@@ -169,9 +163,13 @@ function handleFormSubmission() {
         }
       },
       error: function (error) {
-        toastr.success("Registered successfully" + error.errorMessage);
-        console.log("Registration failed:", error);
+        console.log(error);
       },
+      statusCode: {
+        400: function(response) {
+          toastr.error(response.responseJSON.errorMessage);
+        }
+      }
     });
   }
 }
@@ -182,3 +180,8 @@ $(document).ready(function () {
     handleFormSubmission();
   });
 });
+
+
+function validateInputNumber(input) {
+  input.value = input.value.replace(/[^0-9]/g, '');
+}

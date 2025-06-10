@@ -144,12 +144,11 @@ $("#userForm").submit(function(e) {
     const userData = Object.fromEntries(formData.entries());
     
     let isValid = true;
-    $(".text-danger").text(""); // Clear previous error messages
-
+    $(".text-danger").text(""); 
     const firstName = $("#firstName").val();
     const lastName = $("#lastName").val();
+    const userName = $("#userName").val();
     const email = $("#email").val();
-    const password = $("#password").val();
     const phone = $("#phone").val();
     const country = $("#country").val();
     const timezone = $("#timezone").val();
@@ -176,6 +175,17 @@ $("#userForm").submit(function(e) {
         isValid = false;
     }
 
+    if (!userName) {
+      $("#usernameError").text("Username is required.");
+      isValid = false;
+    } else if (username.length > 50) {
+      $("#usernameError").text("Username should be less than 50 characters.");
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      $("#usernameError").text("Username can only contain letters, numbers, and underscores.");
+      isValid = false;
+    }
+
     if (!email) {
         $("#emailError").text("Email is required.");
         isValid = false;
@@ -187,16 +197,6 @@ $("#userForm").submit(function(e) {
         isValid = false;
     }
 
-    if (!password) {
-        $("#passwordError").text("Password is required.");
-        isValid = false;
-    } else if (password.length < 8 || password.length > 200) {
-        $("#passwordError").text("Password must be at least 8 characters long and less than 200 characters.");
-        isValid = false;
-    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/.test(password)) {
-        $("#passwordError").text("Password must include uppercase, lowercase, number, and special character.");
-        isValid = false;
-    }
 
     if (!phone) {
         $("#phoneError").text("Phone is required.");
