@@ -1,27 +1,9 @@
-$(function () {
-    $("#head-placeholder").load("../partials/header.html");
-    $("#footer-placeholder").load("../partials/footer.html");
-  });
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get("token");
+$("#resetToken").val(token);
 
-  $("#resetPassEyeBtn1").click(function () {
-    const input = $("#PasswordReset1");
-    const type = input.attr("type") === "password" ? "text" : "password";
-    input.attr("type", type);
-    $(this).toggleClass("fa-eye fa-eye-slash");
-  });
 
-  $("#resetPassEyeBtn2").click(function () {
-    const input = $("#PasswordReset2");
-    const type = input.attr("type") === "password" ? "text" : "password";
-    input.attr("type", type);
-    $(this).toggleClass("fa-eye fa-eye-slash");
-  });
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  $("#resetToken").val(token)
-
-  $("#setupPasswordForm").validate({
+$("#resetPasswordForm").validate({
     rules: {
       NewPassword: {
         required: true,
@@ -53,42 +35,43 @@ $(function () {
     }
   });
 
+
+
   if (token) {
     console.log(token);
     $.ajax({
       url: 'http://localhost:5093/api/Authentication/reset-password', 
       method: 'GET',
-      data: { token: token , type: "SetupPassword" },
+      data: { token: token , type: "ResetPassword"},
       success: function(response) {
         console.log(response);
       },
       error: function(error) {
         if(error.responseJSON.isSuccess == false)
-            window.location.href = '../templates/setupDenyPage.html'; 
+            window.location.href = '../templates/ResetDenyPage.html'; 
         console.log(error);
       }
     });
   }
 
-
-  $("#setupPasswordForm").on("submit", function(event) {
+  $("#resetPasswordForm").on("submit", function(event) {
     event.preventDefault(); 
 
       const newPassword = $("#PasswordReset1").val();
       const confirmPassword = $("#PasswordReset2").val();
-    
+
       $("#newPasswordError").text("");
       $("#confirmPasswordError").text("");
 
 
-      if($("#setupPasswordForm").valid())
+      if($("#resetPasswordForm").valid())
       {
         const resetToken = $("#resetToken").val(); 
         const ResetPasswordDto = {
           Token: resetToken,
           NewPassword: newPassword,
           ConfirmNewPassword:confirmPassword,
-          Type: "SetupPassword"
+          Type: "ResetPassword"
         }
         $.ajax({
           url: 'http://localhost:5093/api/Authentication/reset-password', 
@@ -99,7 +82,7 @@ $(function () {
             if (response.isSuccess) {
               $(".setupContainer").addClass("d-none")
               $("#resultHeader").text("Congratulations");
-              $("#resultMessage").text("You have successfully setup your password and your new account is ready.");
+              $("#resultMessage").text("You have successfully rest your password.");
               $(".responseContainer").removeClass('d-none');
             }
           },
@@ -115,3 +98,17 @@ $(function () {
       }
   });
   
+
+  $("#resetPassEyeBtn1").click(function () {
+    const input = $("#PasswordReset1");
+    const type = input.attr("type") === "password" ? "text" : "password";
+    input.attr("type", type);
+    $(this).toggleClass("fa-eye fa-eye-slash");
+  });
+
+  $("#resetPassEyeBtn2").click(function () {
+    const input = $("#PasswordReset2");
+    const type = input.attr("type") === "password" ? "text" : "password";
+    input.attr("type", type);
+    $(this).toggleClass("fa-eye fa-eye-slash");
+  });

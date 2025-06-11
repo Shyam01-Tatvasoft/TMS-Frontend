@@ -1,3 +1,8 @@
+$(function () {
+  $("#head-placeholder").load("../partials/header.html");
+  $("#footer-placeholder").load("../partials/footer.html");
+});
+
 const token = getAuthToken();
 if (!token) {
   window.location.href = "/";
@@ -11,17 +16,7 @@ $.ajax({
     Authorization: "Bearer " + token,
   },
   success: function (response) {
-    const formattedUser = {
-      id: response.result.id,
-      firstName: response.result.firstName.trim(),
-      lastName: response.result.lastName.trim(),
-      email: response.result.email.trim(),
-      phone: response.result.phone.trim(),
-      country: response.result.country.trim(),
-      role: response.result.role.trim(),
-    };
-
-    $("#userName").text(formattedUser.firstName);
+    console.log(response);
   },
   error: function (error) {
     if (error.status == 401) {

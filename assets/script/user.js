@@ -1,26 +1,36 @@
-$.ajax({
+function getAuthToken() {
+  const match = document.cookie.match(/(^|;)\s*AuthToken=([^;]+)/);
+  return match ? match[2] : null;
+}
+
+$(function () {
+  $("#navbar-container").load("../partials/navbar.html");
+});
+
+
+var authToken = getAuthToken();
+
+function GetUsers() {
+  $.ajax({
     url: "http://localhost:5093/api/User/GetUsers",
     type: "GET",
     headers: {
       Authorization: "Bearer " + authToken,
     },
     success: function (response) {
-      console.log(response);
       if (response.isSuccess && Array.isArray(response.result.data)) {
         const users = response.result.data;
         const tableBody = $("#userTable tbody");
         tableBody.empty();
-        console.log(users);
         users.forEach((user) => {
           const row = `
                 <tr>
-                  <td>${user.id}</td>
                   <td>${user.firstName}</td>
                   <td>${user.lastName}</td>
+                  <td>${user.username}</td>
                   <td>${user.email}</td>
                   <td>${user.phone}</td>
-                  <td>${user.country}</td>
-                  <td>${user.role}</td>
+                  <td>${user.countryName}</td>
                   <td>
                     <button class="btn btn-sm btn-primary me-2 editUser" onclick="editUser(${user.id})">Edit</button>
                     <button class="btn btn-sm btn-danger deleteUser" onclick="deleteUser(${user.id})">Delete</button>
@@ -37,40 +47,111 @@ $.ajax({
       }
     },
   });
+}
 
+GetUsers();
 
-function GetCountries()
-{
+function GetCountries() {
+  $.ajax({
+    url: "http://localhost:5093/api/country/countries",
+    type: "GET",
+    success: function (response) {
+      $("#country")
+        .empty()
+        .append(
+          '<option value="" data-id="" hidden>' + "Select Country" + "</option>"
+        );
+      $.each(response.result, function (i, country) {
+        $("#country").append(
+          '<option value="' + country.id + '">' + country.name + "</option>"
+        );
+      });
+    },
+    error: function (error) {
+      console.log(error);
+    },
+  });
+}
+
+$(document).on("change", "#country", function () {
+  const countryId = $(this).find("option:selected").val();
+  if (countryId) {
     $.ajax({
-        url: "http://localhost:5093/api/Authentication/countries",
+      url: "http://localhost:5093/api/country/timezone/" + countryId,
+      type: "GET",
+      success: function (response) {
+        $("#timezone")
+          .empty()
+          .append('<option value="" hidden>' + "Select Timezone" + "</option>");
+        $.each(response.result, function (i, timezone) {
+          $("#timezone").append(
+            '<option value="' +
+              timezone.id +
+              '">' +
+              timezone.timezone +
+              "</option>"
+          );
+        });
+      },
+      error: function (error) {
+        console.log(error);
+      },
+    });
+  } else {
+    $("#Timezone")
+      .empty()
+      .append('<option value="" hidden>' + "Select Timezone" + "</option>");
+  }
+});
+
+$("#AddUser").click(function () {
+  $("#userModalLabel").text("Add User");
+  $("#userForm")[0].reset();
+  $(".text-danger").text("");
+  $("#email").prop("readonly", false);
+  GetCountries();
+  $("#userModal").modal("show");
+});
+
+function editUser(userId) {
+  $(".text-danger").text("");
+  $.ajax({
+    url: `http://localhost:5093/api/User/GetUserById/${userId}`,
+    type: "GET",
+    success: function (user) {
+      $("#userModalLabel").text("Edit User");
+      $("#userFormId").val(user.result.id);
+      $("#firstName").val(user.result.firstName);
+      $("#lastName").val(user.result.lastName);
+      $("#uesrname1").val(user.result.username);
+      $("#email").val(user.result.email);
+      $("#phone").val(user.result.phone.trim());
+      $("#country").val(user.result.fkCountryId);
+      $("#timezone").val(user.result.fkCountryTimezone);
+      $.ajax({
+        url: "http://localhost:5093/api/country/countries",
         type: "GET",
         success: function (response) {
-          $("#country").empty().append(
-            '<option value="" data-id="" hidden>' + "Select Country" + "</option>"
-          );
-          console.log(response.result);
+          $("#country")
+            .empty()
+            .append(
+              '<option value="" data-id="" hidden>' + "Select Country" + "</option>"
+            );
           $.each(response.result, function (i, country) {
             $("#country").append(
-              '<option value="' +
-                country.id +
-                '">' +
-                country.countryName +
-                "</option>"
+              '<option value="' + country.id + '">' + country.name + "</option>"
             );
           });
+
+          $("#country").val(user.result.fkCountryId);
         },
         error: function (error) {
           console.log(error);
         },
       });
-}
 
-$(document).on('change',"#country",function () {
-    const countryId = $(this).find("option:selected").val();
-    console.log("click")
-    if (countryId) {
       $.ajax({
-        url: "http://localhost:5093/api/Authentication/timezone/" + countryId,
+        url: "http://localhost:5093/api/country/timezone/" + user.result.fkCountryId,
         type: "GET",
         success: function (response) {
           $("#timezone")
@@ -81,165 +162,168 @@ $(document).on('change',"#country",function () {
               '<option value="' +
                 timezone.id +
                 '">' +
-                timezone.timezoneName +
+                timezone.timezone +
                 "</option>"
             );
           });
+
+          $("#timezone").val(user.result.fkCountryTimezone);
         },
         error: function (error) {
           console.log(error);
         },
       });
-    } else {
-      $("#Timezone")
-        .empty()
-        .append('<option value="" hidden>' + "Select Timezone" + "</option>");
-    }
+      $("#email").prop("readonly", true);
+      $("#userModal").modal("show");
+    },
   });
-
-$("#AddUser").click(function() {
-    $("#userModalLabel").text("Add User");
-    $("#userForm")[0].reset();
-    GetCountries()
-    $("#userModal").modal('show');
-
-});
-
-function editUser(userId) {
-    GetCountries()
-    $.ajax({
-        url: `http://localhost:5093/api/User/GetUserById/${userId}`,
-        type: "GET",
-        headers: {
-            Authorization: "Bearer " + authToken,
-        },
-        success: function (response) {
-            if (response.isSuccess) {
-                const user = response.result;
-                $("#userModalLabel").text("Edit User");
-                $("#userId").val(user.id);
-                $("#firstName").val(user.firstName);
-                $("#lastName").val(user.lastName);
-                $("#email").val(user.email).prop("disabled", true);
-                $("#country").val(user.country);
-                $("#role").val(user.role);
-                $("#userModal").modal('show');
-            }
-        },
-        error: function (error) {
-            console.error("Error fetching user data:", error);
-        }
-    });
 }
 
-
-
-$("#userForm").submit(function(e) {
-    debugger
-    e.preventDefault();
-    const userId = $("#userId").val();
-
-
-    const formData = new FormData($("#userForm")[0]);
-    const userData = Object.fromEntries(formData.entries());
-    
-    let isValid = true;
-    $(".text-danger").text(""); 
-    const firstName = $("#firstName").val();
-    const lastName = $("#lastName").val();
-    const userName = $("#userName").val();
-    const email = $("#email").val();
-    const phone = $("#phone").val();
-    const country = $("#country").val();
-    const timezone = $("#timezone").val();
-
-    if (!firstName) {
-        $("#firstNameError").text("First Name is required.");
-        isValid = false;
-    } else if (firstName.length > 100) {
-        $("#firstNameError").text("First Name should be less than 100 characters.");
-        isValid = false;
-    } else if (!/^[a-zA-Z0-9]+$/.test(firstName)) {
-        $("#firstNameError").text("First Name can only contain letters.");
-        isValid = false;
-    }
-
-    if (!lastName) {
-        $("#lastNameError").text("Last Name is required.");
-        isValid = false;
-    } else if (lastName.length > 100) {
-        $("#lastNameError").text("Last Name should be less than 100 characters.");
-        isValid = false;
-    } else if (!/^[a-zA-Z0-9]+$/.test(lastName)) {
-        $("#lastNameError").text("Last Name can only contain letters.");
-        isValid = false;
-    }
-
-    if (!userName) {
-      $("#usernameError").text("Username is required.");
-      isValid = false;
-    } else if (username.length > 50) {
-      $("#usernameError").text("Username should be less than 50 characters.");
-      isValid = false;
-    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      $("#usernameError").text("Username can only contain letters, numbers, and underscores.");
-      isValid = false;
-    }
-
-    if (!email) {
-        $("#emailError").text("Email is required.");
-        isValid = false;
-    } else if (email.length > 200) {
-        $("#emailError").text("Email should be less than 200 characters.");
-        isValid = false;
-    } else if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) {
-        $("#emailError").text("Invalid Email.");
-        isValid = false;
-    }
-
-
-    if (!phone) {
-        $("#phoneError").text("Phone is required.");
-        isValid = false;
-    } else if (!/^[1-9]\d{9}$/.test(phone)) {
-        $("#phoneError").text("Please enter a valid phone number.");
-        isValid = false;
-    }
-
-    if (!country) {
-        $("#countryError").text("Country is required.");
-        isValid = false;
-    }
-
-    if (!timezone) {
-        $("#timezoneError").text("Timezone is required.");
-        isValid = false;
-    }
-
-    if (!isValid) {
-        return; 
-    }
-    console.log(userData);
-    const url = userId ? `http://localhost:5093/api/User/PutUser/${userId}` : "http://localhost:5093/api/User/AddUser";
-    const type = userId ? "PUT" : "POST";
-
-    $.ajax({
-        url: url,
-        type: type,
-        headers: {
-            Authorization: "Bearer " + authToken,
-        },
-        contentType: "application/json",
-        data: JSON.stringify(userData),
-        success: function (response) {
-            if (response.isSuccess) {
-                $("#userModal").modal('hide');
-                // Optionally refresh the user list here
-            }
-        },
-        error: function (error) {
-            console.error("Error saving user data:", error);
-        }
-    });
+$("#userForm").validate({
+  rules: {
+    firstName: {
+      required: true,
+      maxlength: 100,
+      regex: /^[a-zA-Z0-9]+$/,
+    },
+    lastName: {
+      required: true,
+      maxlength: 100,
+      regex: /^[a-zA-Z0-9]+$/,
+    },
+    userName: {
+      required: true,
+      maxlength: 50,
+      regex: /^[a-zA-Z0-9_]+$/,
+    },
+    email: {
+      required: true,
+      maxlength: 200,
+      regex: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/,
+      email: true,
+    },
+    phone: {
+      required: true,
+      maxlength: 10,
+      regex: /^[1-9]\d{9}$/,
+    },
+    country: {
+      required: true,
+    },
+    timezone: {
+      required: true,
+    },
+  },
+  messages: {
+    firstName: {
+      required: "First Name is required.",
+      maxlength: "First Name should be less than 100 characters.",
+      regex: "First Name can only contain letters and numbers.",
+    },
+    lastName: {
+      required: "Last Name is required.",
+      maxlength: "Last Name should be less than 100 characters.",
+      regex: "Last Name can only contain letters and numbers.",
+    },
+    userName: {
+      required: "Username is required.",
+      maxlength: "Username should be less than 50 characters.",
+      regex: "Username can only contain letters, numbers, and underscores.",
+    },
+    email: {
+      required: "Email is required.",
+      maxlength: "Email should be less than 200 characters.",
+      regex: "Invalid Email format.",
+      email: "Invalid Email address.",
+    },
+    phone: {
+      required: "Phone is required.",
+      maxlength: "Phone must be 10 digits.",
+      regex: "Please enter a valid 10-digit phone number.",
+    },
+    country: {
+      required: "Please select a country.",
+    },
+    timezone: {
+      required: "Please select a timezone.",
+    },
+  },
+  errorPlacement: function (error, element) {
+    error.appendTo(element.siblings("span.text-danger"));
+  },
+  submitHandler: function (form) {
+    saveUser();
+  },
 });
 
+function validateInputNumber(input) {
+  input.value = input.value.replace(/[^0-9]/g, "");
+}
+
+function saveUser() {
+  const isEdit = $("#userFormId").val() && $("#userFormId").val() != "0";
+  const apiUrl = isEdit
+    ? `http://localhost:5093/api/User/${$("#userFormId").val()}`
+    : "http://localhost:5093/api/User/AddUser";
+
+  const method = isEdit ? "PUT" : "POST";
+  const userDto = {
+    Id: $("#userFormId").val() || 0,
+    FirstName: $("#firstName").val().trim(),
+    LastName: $("#lastName").val().trim(),
+    Username: $("#uesrname1").val().trim(),
+    Email: $("#email").val().trim(),
+    Phone: $("#phone").val().trim(),
+    FkCountryId: parseInt($("#country").val()),
+    FkCountryTimezone: parseInt($("#timezone").val()),
+  };
+
+  $.ajax({
+    url: apiUrl,
+    type: method,
+    contentType: "application/json",
+    data: JSON.stringify(userDto),
+    success: function (response) {
+      if (response.isSuccess) {
+        toastr.success(
+          isEdit ? "User updated successfully!" : "User added successfully!"
+        );
+        $("#userForm")[0].reset();
+        $("#userModal").modal("hide");
+        $("#email").prop("readonly", false);
+        GetUsers();
+      }else{
+        toastr.error(response.errorMessage)
+      }
+      // reload table or data here
+    },
+    error: function (xhr) {
+      const errorMsg = xhr.responseJSON?.message || "Failed to save user.";
+      console.log(errorMsg);
+      alert("Error: " + errorMsg);
+    },
+  });
+}
+
+// delete user
+var deleteUserId;
+function deleteUser(userId) {
+  deleteUserId = userId;
+  $("#deleteUserModal").modal("show");
+}
+
+$("#confirmDeleteUserBtn").on("click", function () {
+  $.ajax({
+    url: `http://localhost:5093/api/User/${deleteUserId}`,
+    type: "DELETE",
+    success: function (response) {
+      toastr.success("User deleted Successfully");
+      $("#deleteUserModal").modal("hide");
+      GetUsers();
+    },
+    error: function (xhr) {
+      const errorMsg = xhr.responseJSON?.message || "Failed to delete user.";
+      toastr.error("Error: " + errorMsg);
+    },
+  });
+});

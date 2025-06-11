@@ -51,7 +51,7 @@ $(document).ready(function () {
         success: function (response) {
           if (response.isSuccess) {
             toastr.success("Login successful!");
-            const expiryTime = rememberMe ? 24 * 60 * 60 : 30 * 60;
+            const expiryTime = rememberMe ? 24 * 60 * 60 : 3 * 60 * 60;
             const expires = new Date(Date.now() + expiryTime * 1000).toUTCString();
             document.cookie = "AuthToken=" + response.result.token + "; expires=" + expires + "; secure; SameSite=None";
             setTimeout(function () {

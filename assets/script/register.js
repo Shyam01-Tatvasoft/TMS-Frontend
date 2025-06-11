@@ -1,5 +1,5 @@
 $.ajax({
-  url: "http://localhost:5093/api/Authentication/countries",
+  url: "http://localhost:5093/api/country/countries",
   type: "GET",
   success: function (response) {
     $("#Country").append(
@@ -11,7 +11,7 @@ $.ajax({
         '<option value="' +
           country.id +
           '">' +
-          country.countryName +
+          country.name +
           "</option>"
       );
     });
@@ -25,7 +25,7 @@ $("#Country").change(function () {
   const countryId = $(this).find("option:selected").val();
   if (countryId) {
     $.ajax({
-      url: "http://localhost:5093/api/Authentication/timezone/" + countryId,
+      url: "http://localhost:5093/api/country/timezone/" + countryId,
       type: "GET",
       success: function (response) {
         $("#Timezone")
@@ -36,7 +36,7 @@ $("#Country").change(function () {
             '<option value="' +
               timezone.id +
               '">' +
-              timezone.timezoneName +
+              timezone.timezone +
               "</option>"
           );
         });
@@ -136,7 +136,7 @@ function handleFormSubmission() {
   }
 
   if (isValid) {
-    $("#loginForm").off("submit").submit();
+    // $("#registerForm").off("submit").submit();
     const userRegisterDto = {
       FirstName: firstName,
       LastName: lastName,
@@ -154,10 +154,8 @@ function handleFormSubmission() {
       data: JSON.stringify(userRegisterDto),
       success: function (response) {
         if (response.isSuccess) {
-          toastr.success("Register successful!");
-          setTimeout(function () {
-            window.location.href = "../../index.html";
-          }, 1000);
+          toastr.success("User account created. Email has been sent for complete your account setup. the setup link is valid for 24 hours");
+          $("#registerForm")[0].reset();
         } else {
           toastr.error("Register failed: " + response.errorMessage);
         }
