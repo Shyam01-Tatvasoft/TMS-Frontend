@@ -267,22 +267,34 @@ function saveUser() {
     : "http://localhost:5093/api/User/AddUser";
 
   const method = isEdit ? "PUT" : "POST";
-  const userDto = {
-    Id: $("#userFormId").val() || 0,
-    FirstName: $("#firstName").val().trim(),
-    LastName: $("#lastName").val().trim(),
-    Username: $("#uesrname1").val().trim(),
-    Email: $("#email").val().trim(),
-    Phone: $("#phone").val().trim(),
-    FkCountryId: parseInt($("#country").val()),
-    FkCountryTimezone: parseInt($("#timezone").val()),
-  };
+
+  var form = new FormData();
+  form.append("Id", $("#userFormId").val() || 0);
+  form.append("FirstName", $("#firstName").val().trim());
+  form.append("LastName", $("#lastName").val().trim());
+  form.append("Username", $("#uesrname1").val().trim());
+  form.append("Email", $("#email").val().trim());
+  form.append("Phone", $("#phone").val().trim());
+  form.append("FkCountryId", parseInt($("#country").val()));
+  form.append("FkCountryTimezone", parseInt($("#timezone").val()));
+
+  // const userDto = {
+  //   Id: $("#userFormId").val() || 0,
+  //   FirstName: $("#firstName").val().trim(),
+  //   LastName: $("#lastName").val().trim(),
+  //   Username: $("#uesrname1").val().trim(),
+  //   Email: $("#email").val().trim(),
+  //   Phone: $("#phone").val().trim(),
+  //   FkCountryId: parseInt($("#country").val()),
+  //   FkCountryTimezone: parseInt($("#timezone").val()),
+  // };
 
   $.ajax({
     url: apiUrl,
     type: method,
-    contentType: "application/json",
-    data: JSON.stringify(userDto),
+    contentType: false,
+    processData: false,
+    data: form,
     success: function (response) {
       if (response.isSuccess) {
         toastr.success(
@@ -291,6 +303,7 @@ function saveUser() {
         $("#userForm")[0].reset();
         $("#userModal").modal("hide");
         $("#email").prop("readonly", false);
+        $("#userFormId").val("")
         GetUsers();
       }else{
         toastr.error(response.errorMessage)

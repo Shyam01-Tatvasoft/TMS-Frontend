@@ -1,5 +1,17 @@
+:root{
+  --textGray: gray;
+  --textWarning: #ffd43b;
+}
+
 .profile-photo {
     width: 40px;
     height: 40px;
     border-radius: 50%;
   }
+
+.text-gray{
+  color: var(--textGray);
+}
+.text-warning{
+  color: var(--textWarning);
+}

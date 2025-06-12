@@ -31,8 +31,6 @@ $(function () {
       },
       ConfirmNewPassword: {
         required: true,
-        minlength: 8,
-        maxlength: 200,
         equalTo: "#PasswordReset1"
       }
     },

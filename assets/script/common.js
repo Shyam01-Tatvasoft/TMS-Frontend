@@ -6,7 +6,7 @@
 
   var authToken = getAuthToken();
 
-  var user;
+  var userProfile;
   $(function () {
     $("#navbar-container").load("../partials/navbar.html");
     $.ajax({
@@ -18,12 +18,24 @@
       success: function (response) {
         if (response.isSuccess) {
           $("#userName").text(response.result.username);
-          user = response.result;
-          console.log("User", user);
+          if (response.result.profileImagePath) {
+            $(".profile-photo").attr(
+                "src",
+                "../images" + response.result.profileImagePath
+            );
+        } else {
+            $(".profile-photo").attr(
+                "src",
+                "../assets/images/default-profile.png"
+            );
+        }
+          userProfile = response.result;
+          console.log("User", userProfile);
           manageAuthentication();
         }
       },
       error: function (error) {
+        debugger
         if (error.status == 401) {
           handleLogout();
         }
@@ -35,7 +47,7 @@
   
   function manageAuthentication() {
     var navUserLink = document.getElementById("nav-item-user");
-    if (user.role == "User") {
+    if (userProfile.role == "User") {
       navUserLink.style.display = "none";
     }
   }
@@ -67,4 +79,8 @@
     window.location.href = "../templates/Forbidden.html";
   }
   
+
+  function validateInputNumber(input) {
+    input.value = input.value.replace(/[^0-9]/g, '');
+  }
 
