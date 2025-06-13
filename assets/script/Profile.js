@@ -56,7 +56,7 @@ var userProfile;
 $(function () {
   $("#navbar-container").load("../partials/navbar.html");
   $.ajax({
-    url: "http://localhost:5093/api/User/GetUser",
+    url: "http://localhost:5093/api/user/get-user",
     type: "GET",
     headers: {
       Authorization: "Bearer " + authToken,
@@ -80,7 +80,7 @@ $(function () {
             "../images" + response.result.profileImagePath
           );
         } else {
-          $(".profile-img").attr("src", "../assets/images/default-profile.png");
+          $(".profile-img").attr("src", "../images/profile.png");
         }
         var timezoneId = response.result.fkCountryTimezone;
         $.ajax({
@@ -222,7 +222,7 @@ function updateProfile() {
   form.append("ProfileImagePath", $("#profileImagePath").val().trim());
 
   $.ajax({
-    url: `http://localhost:5093/api/User/${$("#userProfileId").val()}`,
+    url: `http://localhost:5093/api/user/${$("#userProfileId").val()}`,
     type: "PUT",
     data: form,
     contentType: false,

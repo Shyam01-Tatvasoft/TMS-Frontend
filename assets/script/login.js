@@ -40,7 +40,7 @@ $(document).ready(function () {
 
     if (isValid) {
       $.ajax({
-        url: "http://localhost:5093/api/Authentication/login",
+        url: "http://localhost:5093/api/authentication/login",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({

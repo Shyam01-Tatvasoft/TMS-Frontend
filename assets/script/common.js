@@ -10,7 +10,7 @@
   $(function () {
     $("#navbar-container").load("../partials/navbar.html");
     $.ajax({
-      url: "http://localhost:5093/api/User/GetUser",
+      url: "http://localhost:5093/api/user/get-user",
       type: "GET",
       headers: {
         Authorization: "Bearer " + authToken,
@@ -26,7 +26,7 @@
         } else {
             $(".profile-photo").attr(
                 "src",
-                "../assets/images/default-profile.png"
+                "../images/profile.png"
             );
         }
           userProfile = response.result;
@@ -54,7 +54,7 @@
   
   $(document).on("click", "#logout-btn", function () {
     $.ajax({
-      url: "http://localhost:5093/api/Authentication/logout",
+      url: "http://localhost:5093/api/authentication/logout",
       type: "POST",
       headers: {
         Authorization: "Bearer " + authToken,

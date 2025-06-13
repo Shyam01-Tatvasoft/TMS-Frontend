@@ -54,7 +54,7 @@ $(function () {
   if (token) {
     console.log(token);
     $.ajax({
-      url: 'http://localhost:5093/api/Authentication/reset-password', 
+      url: 'http://localhost:5093/api/authentication/reset-password', 
       method: 'GET',
       data: { token: token , type: "SetupPassword" },
       success: function(response) {
@@ -89,7 +89,7 @@ $(function () {
           Type: "SetupPassword"
         }
         $.ajax({
-          url: 'http://localhost:5093/api/Authentication/reset-password', 
+          url: 'http://localhost:5093/api/authentication/reset-password', 
           method: 'POST',
           data: JSON.stringify(ResetPasswordDto),
           contentType: "application/json",

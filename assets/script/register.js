@@ -148,7 +148,7 @@ function handleFormSubmission() {
     };
 
     $.ajax({
-      url: "http://localhost:5093/api/Authentication/register",
+      url: "http://localhost:5093/api/authentication/register",
       type: "POST",
       contentType: "application/json",
       data: JSON.stringify(userRegisterDto),

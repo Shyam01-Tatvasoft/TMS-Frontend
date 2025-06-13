@@ -12,7 +12,7 @@ var authToken = getAuthToken();
 
 function GetUsers() {
   $.ajax({
-    url: "http://localhost:5093/api/User/GetUsers",
+    url: "http://localhost:5093/api/user",
     type: "GET",
     headers: {
       Authorization: "Bearer " + authToken,
@@ -116,7 +116,7 @@ $("#AddUser").click(function () {
 function editUser(userId) {
   $(".text-danger").text("");
   $.ajax({
-    url: `http://localhost:5093/api/User/GetUserById/${userId}`,
+    url: `http://localhost:5093/api/user/${userId}`,
     type: "GET",
     success: function (user) {
       $("#userModalLabel").text("Edit User");
@@ -263,8 +263,8 @@ function validateInputNumber(input) {
 function saveUser() {
   const isEdit = $("#userFormId").val() && $("#userFormId").val() != "0";
   const apiUrl = isEdit
-    ? `http://localhost:5093/api/User/${$("#userFormId").val()}`
-    : "http://localhost:5093/api/User/AddUser";
+    ? `http://localhost:5093/api/user/${$("#userFormId").val()}`
+    : "http://localhost:5093/api/user";
 
   const method = isEdit ? "PUT" : "POST";
 
@@ -278,16 +278,6 @@ function saveUser() {
   form.append("FkCountryId", parseInt($("#country").val()));
   form.append("FkCountryTimezone", parseInt($("#timezone").val()));
 
-  // const userDto = {
-  //   Id: $("#userFormId").val() || 0,
-  //   FirstName: $("#firstName").val().trim(),
-  //   LastName: $("#lastName").val().trim(),
-  //   Username: $("#uesrname1").val().trim(),
-  //   Email: $("#email").val().trim(),
-  //   Phone: $("#phone").val().trim(),
-  //   FkCountryId: parseInt($("#country").val()),
-  //   FkCountryTimezone: parseInt($("#timezone").val()),
-  // };
 
   $.ajax({
     url: apiUrl,
@@ -327,7 +317,7 @@ function deleteUser(userId) {
 
 $("#confirmDeleteUserBtn").on("click", function () {
   $.ajax({
-    url: `http://localhost:5093/api/User/${deleteUserId}`,
+    url: `http://localhost:5093/api/user/${deleteUserId}`,
     type: "DELETE",
     success: function (response) {
       toastr.success("User deleted Successfully");

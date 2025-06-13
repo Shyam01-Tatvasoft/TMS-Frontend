@@ -22,7 +22,7 @@ $(document).ready(function() {
                 Email: email
             }
             $.ajax({
-                url: 'http://localhost:5093/api/Authentication/forgot-password',
+                url: 'http://localhost:5093/api/authentication/forgot-password',
                 method: 'POST',
                 data: JSON.stringify(ForgotPasswordDto),
                 contentType: "application/json",
