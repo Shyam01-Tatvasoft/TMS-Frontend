@@ -23,3 +23,11 @@
   padding: 10px;
   white-space: nowrap;
 }
+
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.tab-link{
+  color: var(--textGray);
+}

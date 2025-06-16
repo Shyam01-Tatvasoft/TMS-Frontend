@@ -4,7 +4,7 @@ $(document).ready(function () {
     return match ? match[2] : null;
   }
   var token = getAuthToken();
-  console.log(token)
+
   if(token)
   {
     window.location.href = "assets/templates/Dashboard.html";
@@ -50,6 +50,7 @@ $(document).ready(function () {
         }),
         success: function (response) {
           if (response.isSuccess) {
+            toastr.clear();
             toastr.success("Login successful!");
             const expiryTime = rememberMe ? 24 * 60 * 60 : 3 * 60 * 60;
             const expires = new Date(Date.now() + expiryTime * 1000).toUTCString();
@@ -58,12 +59,12 @@ $(document).ready(function () {
               window.location.href = "assets/templates/dashboard.html";
             }, 1000);
           } else {
+            toastr.clear();
             toastr.error("Login failed: " + response.errorMessage);
           }
-          console.log("Login successful:", response);
         },
         error: function (xhr, status, error) {
-          console.log(error)
+          toastr.clear();
           toastr.error("Login failed: Invalid Credentials");
         },
       });

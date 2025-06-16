@@ -5,7 +5,6 @@ $.ajax({
     $("#Country").append(
       '<option value="" data-id="" hidden>' + "Select Country" + "</option>"
     );
-    console.log(response.result);
     $.each(response.result, function (i, country) {
       $("#Country").append(
         '<option value="' +
@@ -17,7 +16,7 @@ $.ajax({
     });
   },
   error: function (error) {
-    console.log(error);
+    toastr.error(error);
   },
 });
 
@@ -42,7 +41,7 @@ $("#Country").change(function () {
         });
       },
       error: function (error) {
-        console.log(error);
+        toastr.error(error);
       },
     });
   } else {
@@ -161,7 +160,7 @@ function handleFormSubmission() {
         }
       },
       error: function (error) {
-        console.log(error);
+        toastr.error(error);
       },
       statusCode: {
         400: function(response) {

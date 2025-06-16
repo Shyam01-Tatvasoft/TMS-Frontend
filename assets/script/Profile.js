@@ -15,7 +15,7 @@ function GetCountries() {
       });
     },
     error: function (error) {
-      console.log(error);
+      toastr.error(error)
     },
   });
 }
@@ -42,7 +42,7 @@ $(document).on("change", "#country", function () {
         });
       },
       error: function (error) {
-        console.log(error);
+        toastr.error(error)
       },
     });
   } else {
@@ -64,7 +64,6 @@ $(function () {
     success: function (response) {
       if (response.isSuccess) {
         userProfile = response.result;
-        console.log(userProfile);
         $("#userProfileId").val(response.result.id);
         $("#profileUserName").val(response.result.username);
         $("#firstName").val(response.result.firstName);
@@ -106,7 +105,7 @@ $(function () {
             $("#timezone").val(timezoneId);
           },
           error: function (error) {
-            console.log(error);
+            toastr.error(error);
           },
         });
         manageAuthentication();
@@ -200,7 +199,6 @@ $("#ProfileForm").validate({
     error.appendTo(element.siblings("span.text-danger"));
   },
   submitHandler: function (form) {
-    console.log(form);
     if ($("#ProfileForm").valid) updateProfile();
   },
 });
@@ -236,8 +234,7 @@ function updateProfile() {
     },
     error: function (xhr) {
       const errorMsg = xhr.responseJSON?.message || "Failed to save user.";
-      console.log(errorMsg);
-      alert("Error: " + errorMsg);
+      toastr.error("Error: " + errorMsg);
     },
   });
 }

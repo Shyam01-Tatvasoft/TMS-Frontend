@@ -10,13 +10,12 @@ if (!token) {
 
 var user;
 $.ajax({
-  url: "http://localhost:5093/api/dashboard/dashboard",
+  url: "http://localhost:5093/api/dashboard",
   type: "GET",
   headers: {
     Authorization: "Bearer " + token,
   },
   success: function (response) {
-    console.log(response);
     if (response.result.role == "User") {
       $("#addTaskButton").hide();
     }
@@ -50,9 +49,8 @@ function GetAllUsers(id) {
     url: "http://localhost:5093/api/user",
     type: "GET",
     success: function (response) {
-      console.log(response.result.data);
-      if (Array.isArray(response.result.data)) {
-        const users = response.result.data;
+      if (Array.isArray(response)) {
+        const users = response;
         const userSelect = $("#userId");
         userSelect.empty();
         userSelect.append('<option value="" hidden>Select User</option>');
@@ -67,7 +65,7 @@ function GetAllUsers(id) {
       }
     },
     error: function (error) {
-      console.error("Error fetching users:", error);
+      toastr.error("Error fetching users:", error);
     },
   });
 }
@@ -77,7 +75,6 @@ function GetTaskTypes(id) {
     url: "http://localhost:5093/api/tasks/get-tasks",
     type: "GET",
     success: function (response) {
-      console.log(response);
       if (Array.isArray(response)) {
         const tasks = response;
         const taskSelect = $("#taskType");
@@ -93,7 +90,7 @@ function GetTaskTypes(id) {
       }
     },
     error: function (error) {
-      console.error("Error fetching tasks:", error);
+      toastr.error("Error fetching tasks:", error);
     },
   });
 }
@@ -109,7 +106,6 @@ function editTask(taskId) {
     url: "http://localhost:5093/api/tasks/" + taskId,
     type: "GET",
     success: async function (response) {
-      console.log(response);
       if (response) {
         $("#taskModalLabel").text("Edit Task");
         $("#taskId").val(response.id);
@@ -123,14 +119,17 @@ function editTask(taskId) {
         $("#dueDate").val(
           new Date(response.dueDate).toISOString().substring(0, 10)
         );
+        $("#dueDate").removeAttr("min");
+
         $("#description").val(response.description);
         $("#status").val(response.status);
-        
+        if (userProfile.role == "User") {
+          $("#dueDate").attr("disabled", true);
+          $("#description").attr("disabled", true);
+        }
         await GetAllUsers(response.fkUserId);
         await GetTaskTypes(response.fkTaskId);
-        await GetSubTask(response.fkTaskId)
-        $("#subTaskType").attr("disabled", true);
-        $("#subTaskType").val(response.fkSubtaskId);
+        await GetSubTask(response.fkTaskId, response.fkSubTaskId);
         if (response.fkTaskId == "2") {
           $("#dynamicFields").empty();
           $("#dynamicFields").append(`
@@ -166,13 +165,17 @@ function editTask(taskId) {
           `);
           $("#length").val(response.taskData.length);
           $("#size").val(response.taskData.size);
+          if (userProfile.role == "User") {
+            $("#length").attr("disabled", true);
+            $("#size").attr("disabled", true);
+          }
         }
 
         $("#taskModal").modal("show");
       }
     },
     error: function (error) {
-      console.error("Error fetching tasks:", error);
+      toastr.error("Error fetching tasks:", error);
     },
   });
 }
@@ -194,12 +197,13 @@ $("#taskType").change(function () {
         </div>
         </div>
       `);
-      console.log(response);
       if (Array.isArray(response)) {
         const subTasks = response;
         const selectSubTask = $("#subTaskType");
         selectSubTask.empty();
-        selectSubTask.append('<option value="" hidden>Select Sub Task</option>');
+        selectSubTask.append(
+          '<option value="" hidden>Select Sub Task</option>'
+        );
         subTasks.forEach((subTask) => {
           selectSubTask.append(
             `<option value="${subTask.id}">${subTask.name}</option>`
@@ -208,13 +212,12 @@ $("#taskType").change(function () {
       }
     },
     error: function (error) {
-      console.error("Error fetching subTasks:", error);
+      toastr.error("Error fetching subTasks:", error);
     },
   });
 });
 
-function GetSubTask(id)
-{
+function GetSubTask(id, subTaskId) {
   $.ajax({
     url: "http://localhost:5093/api/tasks/get-sub-tasks/" + id,
     type: "GET",
@@ -231,88 +234,91 @@ function GetSubTask(id)
         </div>
         </div>
       `);
-      console.log(response);
       if (Array.isArray(response)) {
         const subTasks = response;
         const selectSubTask = $("#subTaskType");
         selectSubTask.empty();
-        selectSubTask.append('<option value="" hidden>Select Sub Task</option>');
+        selectSubTask.append(
+          '<option value="" hidden>Select Sub Task</option>'
+        );
         subTasks.forEach((subTask) => {
           selectSubTask.append(
             `<option value="${subTask.id}">${subTask.name}</option>`
           );
         });
       }
+      if (subTaskId) {
+        $("#subTaskType").val(subTaskId);
+        $("#subTaskType").attr("disabled", true);
+      }
     },
     error: function (error) {
-      console.error("Error fetching subTasks:", error);
+      toastr.error("Error fetching subTasks:", error);
     },
   });
 }
 
-// Data Table
-// new DataTable('#taskTable', {
-//   ordering: false,
-//  pagingType: 'simple',
-//  dom: "<'row'<'col-sm-6 col-offset-sm-6'f>>" +
-//      "<'row'<'col-sm-12'tr>>" +
-//      "<'row d-flex justify-content-end align-items-center'<'col-auto'l><'col-auto'i><'col-auto'p>>",
-//  language: {
-//      info: 'Showing _START_ - _END_ of _TOTAL_ ',
-//      lengthMenu: '<select>' +
-//          '<option value="5">5</option>' +
-//          '<option value="10">10</option>' +
-//          '<option value="15">15</option>' +
-//          '</select>'
-//  },
-//  pageLength: 5
-// });
-
-function GetAllTasks() {
-  $.ajax({
-    url: "http://localhost:5093/api/tasks",
-    type: "GET",
-    headers: {
-      Authorization: "Bearer " + token,
+var table;
+$(document).ready(function () {
+  table = $("#taskTable").DataTable({
+    processing: true,
+    serverSide: true,
+    ordering: true,
+    responsive: true,
+    pagingType: "simple_numbers",
+    ajax: {
+      url: "http://localhost:5093/api/tasks/get-tasks",
+      type: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+      data: function (d) {
+        return d;
+      },
     },
-    success: function (response) {
-      console.log(response);
-      if (Array.isArray(response)) {
-        const tasks = response;
-
-        const tableBody = $("#taskTable tbody");
-        tableBody.empty(); // Clear existing rows
-        tasks.forEach((task) => {
-          const row = `
-            <tr>
-              <td>${task.taskName}</td>
-              <td>${task.subTaskName}</td>
-              <td>${task.userName}</td>
-              <td>${task.description}</td>
-              <td>${new Date(task.dueDate).toLocaleDateString()}</td>
-              <td>${task.status}</td>
-              <td>${task.priority}</td>
-              <td class="text-center">
-                <button class="btn border-0 p-0" onclick="editTask(${task.id})">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-              </td>
-            </tr>
-          `;
-          tableBody.append(row);
-        });
-      }
-    },
-    error: function (error) {
-      if (error.status == 401 || error.status == 403) {
-        document.cookie =
-          "AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.location.href = "/";
-      }
+    columns: [
+      { data: "taskName", orderable: false },
+      { data: "subTaskName", orderable: false },
+      { data: "userName", orderable: false },
+      { data: "description", orderable: false },
+      {
+        data: "dueDate",
+        render: function (data) {
+          return new Date(data).toLocaleDateString();
+        },
+      },
+      { data: "status", orderable: false },
+      { data: "priority", orderable: false },
+      {
+        data: "id",
+        orderable: false,
+        className: "text-center",
+        render: function (data) {
+          return `
+            <button class="btn border-0 p-0" onclick="editTask(${data})">
+              <i class="fa-solid fa-pen text-gray"></i>
+            </button>`;
+        },
+      },
+    ],
+    pageLength: 5,
+    dom:
+      "<'row'<'col-sm-6'f><'col-sm-6 text-end'B>>" +
+      "<'row'<'col-sm-12'tr>>" +
+      "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'i><'col-auto'p>>",
+    language: {
+      info: "Showing _START_ - _END_ of _TOTAL_ ",
+      lengthMenu:
+        "<select>" +
+        '<option value="5">5</option>' +
+        '<option value="10">10</option>' +
+        '<option value="15">15</option>' +
+        "</select>",
+      search: "",
+      searchPlaceholder: "Search tasks...",
     },
   });
-}
-GetAllTasks();
+});
 
 $("#addTaskButton").click(function () {
   $("#taskModal").modal("show");
@@ -320,7 +326,13 @@ $("#addTaskButton").click(function () {
   $("#priority").attr("disabled", false);
   $("#taskType").attr("disabled", false);
   $("#userId").attr("disabled", false);
-  
+  $("#dueDate").attr("disabled", false);
+  $("#description").attr("disabled", false);
+  var today = new Date();
+  //disable past dates
+  document
+    .getElementById("dueDate")
+    .setAttribute("min", today.toISOString().split("T")[0]);
   $("#subTaskField").empty();
   GetAllUsers();
   GetTaskTypes();
@@ -431,11 +443,11 @@ $("#taskForm").on("submit", function (event) {
       toastr.success(
         isEdit ? "Task updated successfully!" : "Task added successfully!"
       );
-      GetAllTasks();
+      table.ajax.reload();
+      // GetAllTasks();
     },
     error: function (xhr) {
-      console.log(xhr.responseText)
-      // alert(xhr.responseText || "Error saving task");
+      toastr.error("Perform error while perform task operation.");
     },
   });
 });
@@ -482,3 +494,78 @@ $(document).ready(function () {
     }
   });
 });
+
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl("http://localhost:5093/notificationHub")
+  .build();
+
+connection
+  .start()
+  .then(function () {
+    console.log("SignalR connected");
+  })
+  .catch(function (err) {
+    return console.error(err.toString());
+  });
+
+connection.on("ReceiveNotification", function (id, message) {
+  if (id == userProfile.id) {
+    table.ajax.reload();
+    $("#notif-indicator").show();
+    GetNotifications();
+  }
+});
+
+$("#notification-bell").on("click", function () {
+  $("#notif-indicator").hide();
+});
+
+function GetNotifications() {
+  $.ajax({
+    url: "http://localhost:5093/api/notification/" + userProfile.id,
+    type: "GET",
+    success: function (response) {
+      if (Array.isArray(response)) {
+        const notifications = response;
+        const notificationList = $("#notification-list");
+        notificationList.empty();
+
+        const notificationCount = notifications.length;
+        if (notificationCount > 0) {
+          notifications.forEach((notification) => {
+            notificationList.append(
+              `<li class="dropdown-item">
+              <div class="d-flex justify-content-between align-items-center">
+              <span class="me-2">${notification.taskType}</span>
+              <button class="btn btn-sm btn-outline-secondary" onclick="markAsRead(${notification.id})">Mark as Read</button>
+              </div>
+              </li>`
+            );
+          });
+          $("#notification-indicator").removeClass("d-none");
+        } else {
+          notificationList.append(
+            '<li class="dropdown-item">No new notifications</li>'
+          );
+          $("#notification-indicator").addClass("d-none");
+        }
+      }
+    },
+    error: function (error) {
+      toastr.error("Error fetching notifications:", error);
+    },
+  });
+}
+
+function markAsRead(id) {
+  $.ajax({
+    url: "http://localhost:5093/api/notification/" + id,
+    type: "PUT",
+    success: function (response) {
+      GetNotifications();
+    },
+    error: function (error) {
+      toastr.error("Error marking notification as read:", error);
+    },
+  });
+}

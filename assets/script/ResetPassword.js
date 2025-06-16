@@ -36,18 +36,15 @@ $("#resetPasswordForm").validate({
 
 
   if (token) {
-    console.log(token);
     $.ajax({
       url: 'http://localhost:5093/api/authentication/reset-password', 
       method: 'GET',
       data: { token: token , type: "ResetPassword"},
       success: function(response) {
-        console.log(response);
       },
       error: function(error) {
         if(error.responseJSON.isSuccess == false)
             window.location.href = '../templates/ResetDenyPage.html'; 
-        console.log(error);
       }
     });
   }
@@ -85,7 +82,7 @@ $("#resetPasswordForm").validate({
             }
           },
           error: function(error) {
-            console.log(error)
+            toastr.error("Error");
           },
           statusCode: {
             400: function(response) {

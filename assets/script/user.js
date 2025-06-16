@@ -10,46 +10,99 @@ $(function () {
 
 var authToken = getAuthToken();
 
-function GetUsers() {
-  $.ajax({
-    url: "http://localhost:5093/api/user",
-    type: "GET",
-    headers: {
-      Authorization: "Bearer " + authToken,
+// function GetUsers() {
+//   $.ajax({
+//     url: "http://localhost:5093/api/user",
+//     type: "GET",
+//     headers: {
+//       Authorization: "Bearer " + authToken,
+//     },
+//     success: function (response) {
+//       if (Array.isArray(response)) {
+//         const users = response;
+//         const tableBody = $("#userTable tbody");
+//         tableBody.empty();
+//         users.forEach((user) => {
+//           const row = `
+//                 <tr>
+//                   <td>${user.firstName}</td>
+//                   <td>${user.lastName}</td>
+//                   <td>${user.username}</td>
+//                   <td>${user.email}</td>
+//                   <td>${user.phone}</td>
+//                   <td>${user.countryName}</td>
+//                   <td>
+//                     <button class="btn border-0 me-2 editUser" onclick="editUser(${user.id})"> <i class="fa-solid fa-pen text-gray"></i></button>
+//                     <button class="btn border-0 deleteUser" onclick="deleteUser(${user.id})"> <i class="fa-solid fa-trash text-gray"></i></button>
+//                   </td>
+//                 </tr>
+//               `;
+//           tableBody.append(row);
+//         });
+//       }
+//     },
+//     error: function (error) {
+//       if (error.status == 401 || error.status == 403) {
+//         handleLogout();
+//       }
+//     },
+//   });
+// }
+
+// GetUsers();
+
+var userTable;
+$(document).ready(function () {
+
+  userTable = $("#userTable").DataTable({
+    processing: true,
+    serverSide: true,
+    ordering: true,
+    responsive: true,
+    pagingType: "simple_numbers",
+    ajax: {
+      url: "http://localhost:5093/api/user/get-users",
+      type: "POST",
+      data: function (d) {
+        return d;
+      },
     },
-    success: function (response) {
-      if (response.isSuccess && Array.isArray(response.result.data)) {
-        const users = response.result.data;
-        const tableBody = $("#userTable tbody");
-        tableBody.empty();
-        users.forEach((user) => {
-          const row = `
-                <tr>
-                  <td>${user.firstName}</td>
-                  <td>${user.lastName}</td>
-                  <td>${user.username}</td>
-                  <td>${user.email}</td>
-                  <td>${user.phone}</td>
-                  <td>${user.countryName}</td>
-                  <td>
-                    <button class="btn btn-sm btn-primary me-2 editUser" onclick="editUser(${user.id})">Edit</button>
-                    <button class="btn btn-sm btn-danger deleteUser" onclick="deleteUser(${user.id})">Delete</button>
-                  </td>
-                </tr>
-              `;
-          tableBody.append(row);
-        });
-      }
-    },
-    error: function (error) {
-      if (error.status == 401 || error.status == 403) {
-        handleLogout();
-      }
+    columns: [
+      { data: "firstName" },
+      { data: "lastName" },
+      { data: "username" },
+      { data: "email" },
+      { data: "phone" , orderable: false },
+      { data: "countryName" ,orderable: false },
+      {
+        data: "id",
+        orderable: false,
+        className: "text-center",
+        render: function (data) {
+          return `
+<button class="btn border-0 me-2 editUser" onclick="editUser(${data})"> <i class="fa-solid fa-pen text-gray"></i></button>
+                   <button class="btn border-0 deleteUser" onclick="deleteUser(${data})"> <i class="fa-solid fa-trash text-gray"></i></button>`;
+        },
+      },
+    ],
+    pageLength: 5,
+    dom:
+      "<'row'<'col-sm-6'f><'col-sm-6 text-end'B>>" +
+      "<'row'<'col-sm-12'tr>>" +
+      "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'i><'col-auto'p>>",
+    language: {
+      info: "Showing _START_ - _END_ of _TOTAL_ ",
+      lengthMenu:
+        "<select>" +
+        '<option value="5">5</option>' +
+        '<option value="10">10</option>' +
+        '<option value="15">15</option>' +
+        "</select>",
+      search: "",
+      searchPlaceholder: "Search users...",
     },
   });
-}
-
-GetUsers();
+});
 
 function GetCountries() {
   $.ajax({
@@ -68,7 +121,7 @@ function GetCountries() {
       });
     },
     error: function (error) {
-      console.log(error);
+      toastr.error("Error while fetching data of country")
     },
   });
 }
@@ -94,7 +147,7 @@ $(document).on("change", "#country", function () {
         });
       },
       error: function (error) {
-        console.log(error);
+        toastr.error("Error while fetching the data of timezone.")
       },
     });
   } else {
@@ -146,7 +199,7 @@ function editUser(userId) {
           $("#country").val(user.result.fkCountryId);
         },
         error: function (error) {
-          console.log(error);
+          toastr.error("Error while fetching the data of user")
         },
       });
 
@@ -170,7 +223,7 @@ function editUser(userId) {
           $("#timezone").val(user.result.fkCountryTimezone);
         },
         error: function (error) {
-          console.log(error);
+          toastr.error("Error while fetching the data of timezone");
         },
       });
       $("#email").prop("readonly", true);
@@ -294,7 +347,7 @@ function saveUser() {
         $("#userModal").modal("hide");
         $("#email").prop("readonly", false);
         $("#userFormId").val("")
-        GetUsers();
+        userTable.ajax.reload(); // Reload the DataTable
       }else{
         toastr.error(response.errorMessage)
       }
@@ -302,8 +355,7 @@ function saveUser() {
     },
     error: function (xhr) {
       const errorMsg = xhr.responseJSON?.message || "Failed to save user.";
-      console.log(errorMsg);
-      alert("Error: " + errorMsg);
+      toastr.error("Error: " + errorMsg);
     },
   });
 }
