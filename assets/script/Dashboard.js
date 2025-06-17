@@ -1,3 +1,13 @@
+const AdminStatus = [
+  { label: "Pending", value: "1" },
+  { label: "In Progress", value: "2" },
+  { label: "On Hold", value: "4" },
+  { label: "Cancelled", value: "5" },
+];
+const UserStatus = [
+  { label: "In Progress", value: "2" },
+  { label: "On Hold", value: "4" },
+];
 $(function () {
   $("#head-placeholder").load("../partials/header.html");
   $("#footer-placeholder").load("../partials/footer.html");
@@ -101,7 +111,7 @@ function editTask(taskId) {
   $("#userId").empty();
   $("#taskType").empty();
   $(".text-danger").text("");
-
+  PopulateStatusDropdowns();
   $.ajax({
     url: "http://localhost:5093/api/tasks/" + taskId,
     type: "GET",
@@ -115,7 +125,6 @@ function editTask(taskId) {
         $("#taskType").attr("disabled", true);
         $("#taskType").trigger("change");
         $("#priority").val(response.priority);
-        $("#priority").attr("disabled", true);
         $("#dueDate").val(
           new Date(response.dueDate).toISOString().substring(0, 10)
         );
@@ -124,6 +133,7 @@ function editTask(taskId) {
         $("#description").val(response.description);
         $("#status").val(response.status);
         if (userProfile.role == "User") {
+          $("#priority").attr("disabled", true);
           $("#dueDate").attr("disabled", true);
           $("#description").attr("disabled", true);
         }
@@ -175,9 +185,29 @@ function editTask(taskId) {
       }
     },
     error: function (error) {
-      toastr.error("Error fetching tasks:", error);
+      toastr.error("Error fetching task:", error);
     },
   });
+}
+
+function PopulateStatusDropdowns() {
+  if (userProfile.role == "User") {
+    $("#status").empty();
+    $("#status").append('<option value="" hidden>Select Status</option>');
+    UserStatus.forEach((status) => {
+      $("#status").append(
+        `<option value="${status.value}">${status.label}</option>`
+      );
+    });
+  } else {
+    $("#status").empty();
+    $("#status").append('<option value="" hidden>Select Status</option>');
+    AdminStatus.forEach((status) => {
+      $("#status").append(
+        `<option value="${status.value}">${status.label}</option>`
+      );
+    });
+  }
 }
 
 $("#taskType").change(function () {
@@ -279,7 +309,13 @@ $(document).ready(function () {
     columns: [
       { data: "taskName", orderable: false },
       { data: "subTaskName", orderable: false },
-      { data: "userName", orderable: false },
+      {
+        data: "userName",
+        orderable: true,
+        render: function (data) {
+          return `<span class="fw-bold">${data}</span>`;
+        },
+      },
       { data: "description", orderable: false },
       {
         data: "dueDate",
@@ -287,37 +323,64 @@ $(document).ready(function () {
           return new Date(data).toLocaleDateString();
         },
       },
-      { data: "status", orderable: false },
+      {
+        data: "status",
+        orderable: false,
+        render: function (data) {
+          return `
+            <span class="status-${data.replace(/\s+/g, "")}">${data}</span>
+            `;
+        },
+      },
       { data: "priority", orderable: false },
       {
         data: "id",
         orderable: false,
         className: "text-center",
-        render: function (data) {
-          return `
-            <button class="btn border-0 p-0" onclick="editTask(${data})">
-              <i class="fa-solid fa-pen text-gray"></i>
+        render: function (data, type, row) {
+          if (row.status === "Completed" || row.status === "Cancelled") {
+            return `<button class="btn border-0 p-0 me-md-1" onclick="seeDetails()" title="see details"><i class="fa-solid fa-eye"></i></button>`;
+          } else if (
+            row.status == "In Progress" &&
+            userProfile.role == "User"
+          ) {
+            if (row.taskName == "Upload File") {
+              return `<button class="btn border-0 p-0 me-md-1" onclick="PerformTask(${data}, '${row.taskName}')" title="upload file"><i class="fa-solid fa-upload"></i></button>
+                <button class="btn border-0 p-0" onclick="editTask(${data})" title="edit task"> <i class="fa-solid fa-pen"></i> </button>`;
+            } else if (row.taskName == "Send Email") {
+              return `<button class="btn border-0 p-0 me-md-1" onclick="PerformTask(${data},'${row.taskName}')" title="send mail"><i class="fa-solid fa-envelope"></i></button>
+              <button class="btn border-0 p-0" onclick="editTask(${data})" title="edit task"> 
+              <i class="fa-solid fa-pen"></i>
             </button>`;
+            }
+          } else {
+            return `
+            <button class="btn border-0 p-0" onclick="editTask(${data})" title="edit task"> 
+              <i class="fa-solid fa-pen"></i>
+            </button>`;
+          }
         },
       },
     ],
     pageLength: 5,
     dom:
-      "<'row'<'col-sm-6'f><'col-sm-6 text-end'B>>" +
+      "<'row'<'col-auto'i><'col text-end my-1'f>>" +
       "<'row'<'col-sm-12'tr>>" +
-      "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'i><'col-auto'p>>",
+      "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'p>>",
     language: {
       info: "Showing _START_ - _END_ of _TOTAL_ ",
       lengthMenu:
-        "<select>" +
+        "Showing <select>" +
         '<option value="5">5</option>' +
         '<option value="10">10</option>' +
         '<option value="15">15</option>' +
-        "</select>",
+        "</select> records per page",
       search: "",
       searchPlaceholder: "Search tasks...",
     },
   });
+
+  $("#taskTable_filter input").addClass("fs-6 shadow-none ");
 });
 
 $("#addTaskButton").click(function () {
@@ -329,6 +392,7 @@ $("#addTaskButton").click(function () {
   $("#dueDate").attr("disabled", false);
   $("#description").attr("disabled", false);
   var today = new Date();
+  PopulateStatusDropdowns();
   //disable past dates
   document
     .getElementById("dueDate")
@@ -438,16 +502,24 @@ $("#taskForm").on("submit", function (event) {
     type: method,
     contentType: "application/json",
     data: JSON.stringify(data),
+    headers: {
+      Authorization: "Bearer " + token,
+    },
     success: function (response) {
       $("#taskModal").modal("hide");
       toastr.success(
         isEdit ? "Task updated successfully!" : "Task added successfully!"
       );
       table.ajax.reload();
-      // GetAllTasks();
     },
     error: function (xhr) {
-      toastr.error("Perform error while perform task operation.");
+      if (xhr.status != 400) {
+        toastr.clear();
+        toastr.error("Error while assign task.");
+      } else {
+        toastr.clear();
+        toastr.error(xhr.responseText);
+      }
     },
   });
 });
@@ -495,77 +567,63 @@ $(document).ready(function () {
   });
 });
 
-const connection = new signalR.HubConnectionBuilder()
-  .withUrl("http://localhost:5093/notificationHub")
-  .build();
-
-connection
-  .start()
-  .then(function () {
-    console.log("SignalR connected");
-  })
-  .catch(function (err) {
-    return console.error(err.toString());
-  });
-
-connection.on("ReceiveNotification", function (id, message) {
-  if (id == userProfile.id) {
-    table.ajax.reload();
-    $("#notif-indicator").show();
-    GetNotifications();
-  }
-});
-
 $("#notification-bell").on("click", function () {
-  $("#notif-indicator").hide();
+  $("#notification-indicator").hide();
 });
 
-function GetNotifications() {
+function PerformTask(id, taskName) {
+  if (userProfile.role == "User" && taskName == "Upload File") {
+    ManageFileUpload(id);
+  } else {
+    ManageEmailSend(id);
+  }
+}
+
+var taskData;
+function ManageFileUpload(id) {
   $.ajax({
-    url: "http://localhost:5093/api/notification/" + userProfile.id,
+    url: "http://localhost:5093/api/tasks/" + id,
     type: "GET",
     success: function (response) {
-      if (Array.isArray(response)) {
-        const notifications = response;
-        const notificationList = $("#notification-list");
-        notificationList.empty();
-
-        const notificationCount = notifications.length;
-        if (notificationCount > 0) {
-          notifications.forEach((notification) => {
-            notificationList.append(
-              `<li class="dropdown-item">
-              <div class="d-flex justify-content-between align-items-center">
-              <span class="me-2">${notification.taskType}</span>
-              <button class="btn btn-sm btn-outline-secondary" onclick="markAsRead(${notification.id})">Mark as Read</button>
-              </div>
-              </li>`
-            );
-          });
-          $("#notification-indicator").removeClass("d-none");
-        } else {
-          notificationList.append(
-            '<li class="dropdown-item">No new notifications</li>'
-          );
-          $("#notification-indicator").addClass("d-none");
-        }
-      }
+      taskData = response;
+      console.log(taskData);
+      $("#file-upload-modal").modal("show");
     },
     error: function (error) {
-      toastr.error("Error fetching notifications:", error);
+      toastr.error("Error fetching task:", error);
     },
   });
 }
 
-function markAsRead(id) {
-  $.ajax({
-    url: "http://localhost:5093/api/notification/" + id,
-    type: "PUT",
-    success: function (response) {
-      GetNotifications();
-    },
-    error: function (error) {
-      toastr.error("Error marking notification as read:", error);
-    },
-  });
+$("#fileUploadForm").on("submit", function (e) {
+  e.preventDefault();
+
+  const files = $("#fileInput")[0].files;
+
+  if (files.length > parseInt(taskData.taskData.length)) {
+    alert(`Maximum ${taskData.length} files allowed.`);
+    return;
+  }
+
+  for (let file of files) {
+    const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+    if (!taskData.fileTypes.includes(ext)) {
+      alert(`File type ${ext} not allowed.`);
+      return;
+    }
+
+    if (file.size > taskData.size * 1024 * 1024) {
+      alert(`${file.name} exceeds ${taskData.size} MB size.`);
+      return;
+    }
+  }
+
+  let formData = new FormData(this);
+  for (let i = 0; i < files.length; i++) {
+    formData.append("files", files[i]);
+  }
+});
+
+function ManageEmailSend() {
+  $("#send-mail-modal").modal('show')
 }

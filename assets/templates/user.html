@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User</title>
-    <link rel="stylesheet" href="../style/common.css" />
+    
     <!-- icon -->
     <link
       rel="stylesheet"
@@ -34,6 +34,7 @@
       href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="../style/common.css" />
 
     <!-- frontend side validation -->
     <script src="../lib/jquery/dist/jquery.min.js"></script>
@@ -45,15 +46,15 @@
     <section class="container-fluid">
       <div class="d-flex justify-content-between">
         <div>
-          <h2 class="text-center">Users List</h2>
+          <h3 class="text-center">Users List</h3>
         </div>
         <div>
-          <button id="AddUser" class="btn btn-outline-secondary">
+          <button id="AddUser" class="btn btn-outline-secondary ">
             <i class="fa-solid fa-plus"></i> Add User
           </button>
         </div>
       </div>
-      <div class="table-responsive shadow rounded-2">
+      <div class="table-responsive shadow rounded-2 p-2">
         <table class="table" id="userTable">
           <thead class="table-secondary">
             <tr>
@@ -247,6 +248,7 @@
         </div>
       </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script

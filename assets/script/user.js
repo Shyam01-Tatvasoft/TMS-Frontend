@@ -10,47 +10,6 @@ $(function () {
 
 var authToken = getAuthToken();
 
-// function GetUsers() {
-//   $.ajax({
-//     url: "http://localhost:5093/api/user",
-//     type: "GET",
-//     headers: {
-//       Authorization: "Bearer " + authToken,
-//     },
-//     success: function (response) {
-//       if (Array.isArray(response)) {
-//         const users = response;
-//         const tableBody = $("#userTable tbody");
-//         tableBody.empty();
-//         users.forEach((user) => {
-//           const row = `
-//                 <tr>
-//                   <td>${user.firstName}</td>
-//                   <td>${user.lastName}</td>
-//                   <td>${user.username}</td>
-//                   <td>${user.email}</td>
-//                   <td>${user.phone}</td>
-//                   <td>${user.countryName}</td>
-//                   <td>
-//                     <button class="btn border-0 me-2 editUser" onclick="editUser(${user.id})"> <i class="fa-solid fa-pen text-gray"></i></button>
-//                     <button class="btn border-0 deleteUser" onclick="deleteUser(${user.id})"> <i class="fa-solid fa-trash text-gray"></i></button>
-//                   </td>
-//                 </tr>
-//               `;
-//           tableBody.append(row);
-//         });
-//       }
-//     },
-//     error: function (error) {
-//       if (error.status == 401 || error.status == 403) {
-//         handleLogout();
-//       }
-//     },
-//   });
-// }
-
-// GetUsers();
-
 var userTable;
 $(document).ready(function () {
 
@@ -87,21 +46,23 @@ $(document).ready(function () {
     ],
     pageLength: 5,
     dom:
-      "<'row'<'col-sm-6'f><'col-sm-6 text-end'B>>" +
+      "<'row'<'col-auto'i><'col text-end my-1'f>>" +
       "<'row'<'col-sm-12'tr>>" +
-      "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'i><'col-auto'p>>",
+      "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'p>>",
     language: {
       info: "Showing _START_ - _END_ of _TOTAL_ ",
       lengthMenu:
-        "<select>" +
+        "Showing <select>" +
         '<option value="5">5</option>' +
         '<option value="10">10</option>' +
         '<option value="15">15</option>' +
-        "</select>",
+        "</select> records per page",
       search: "",
       searchPlaceholder: "Search users...",
     },
   });
+
+  $('#userTable_filter input').addClass("fs-6 shadow-none ");
 });
 
 function GetCountries() {
@@ -347,7 +308,7 @@ function saveUser() {
         $("#userModal").modal("hide");
         $("#email").prop("readonly", false);
         $("#userFormId").val("")
-        userTable.ajax.reload(); // Reload the DataTable
+        userTable.ajax.reload(); 
       }else{
         toastr.error(response.errorMessage)
       }

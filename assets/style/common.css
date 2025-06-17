@@ -1,6 +1,10 @@
 :root{
   --textGray: gray;
+  --textGrayHover: rgb(77, 77, 77);
   --textWarning: #ffd43b;
+  --textCancelled: red;
+  --textInProgress: blue;
+  --textOnHold: gray;
 }
 
 .profile-photo {
@@ -28,6 +32,28 @@
   cursor: pointer;
 }
 
-.tab-link{
+ .tab-link{
   color: var(--textGray);
 }
+.tab-link:hover{
+  color: var(--textGrayHover);
+}
+
+.active-navbar{
+  color: var(--textGrayHover);
+  font-weight: bold;
+}
+/*
+
+.status-InProgress{
+  color: var(--textInProgress);
+}
+.status-Pending{
+  color: textPe;
+}
+.status-Cancelled{
+  color: var(--textCancelled);
+}
+.status-OnHold{
+  color: var(--textOnHold);
+} */

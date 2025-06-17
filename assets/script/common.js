@@ -7,7 +7,22 @@ var authToken = getAuthToken();
 
 var userProfile;
 $(function () {
-  $("#navbar-container").load("../partials/navbar.html");
+  $("#navbar-container").load("../partials/navbar.html", function () {
+    $(".navbar-tabs").each(function () {
+      console.log("Checking: ", this.href, " against ", window.location.href);
+      $(this).removeClass("active-navbar");
+      if (this.href === window.location.href) {
+        console.log("Adding active class to: ", this);
+        $(this).addClass("active-navbar");
+        console.log($(this));
+        }
+    });
+  });
+  GetUserProfile();
+});
+
+function GetUserProfile()
+{
   $.ajax({
     url: "http://localhost:5093/api/user/get-user",
     type: "GET",
@@ -44,6 +59,85 @@ $(function () {
       }
     },
   });
+}
+
+function GetNotifications() {
+  $.ajax({
+    url: "http://localhost:5093/api/notification/" + userProfile.id,
+    type: "GET",
+    success: function (response) {
+      if (Array.isArray(response)) {
+        const notifications = response;
+        const notificationList = $("#notification-list");
+        notificationList.empty();
+
+        const notificationCount = notifications.length;
+        if (notificationCount > 0) {
+          notifications.forEach((notification) => {
+            notificationList.append(
+              `<li class="dropdown-item">
+              <p>Notifications (${notifications.length})</p>
+              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex flex-column">
+                <span class="me-2 fw-bold">${notification.taskType}</span>
+              <span class="">${notification.taskDescription}</span>
+              </div>
+                <div>
+                <button class="btn btn-sm btn-outline-secondary" onclick="markAsRead(${notification.id})">Read</button>
+                </div>
+              </div>
+              </li>`
+            );
+          });
+          $("#notification-indicator").removeClass("d-none");
+        } else {
+          notificationList.append(
+            '<li class="dropdown-item">No new notifications</li>'
+          );
+          $("#notification-indicator").addClass("d-none");
+        }
+      }
+    },
+    error: function (error) {
+      toastr.error("Error fetching notifications:", error);
+    },
+  });
+}
+
+
+function markAsRead(id) {
+  $.ajax({
+    url: "http://localhost:5093/api/notification/" + id,
+    type: "PUT",
+    success: function (response) {
+      GetNotifications();
+    },
+    error: function (error) {
+      toastr.error("Error marking notification as read:", error);
+    },
+  });
+}
+
+
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl("http://localhost:5093/notificationHub")
+  .build();
+
+connection
+  .start()
+  .then(function () {
+    console.log("SignalR connected");
+  })
+  .catch(function (err) {
+    return console.error(err.toString());
+  });
+
+connection.on("ReceiveNotification", function (id, message) {
+  if (id == userProfile.id) {
+    table.ajax.reload();
+    $("#notification-indicator").show();
+    GetNotifications();
+  }
 });
 
 function manageAuthentication() {
