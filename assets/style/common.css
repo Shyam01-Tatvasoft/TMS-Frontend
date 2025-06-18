@@ -43,6 +43,16 @@
   color: var(--textGrayHover);
   font-weight: bold;
 }
+
+.page-link{
+  color: black !important;
+}
+.active>.page-link{
+  background-color: var(--textGray) !important;
+  color: white !important;
+  border-color: black !important;
+}
+
 /*
 
 .status-InProgress{

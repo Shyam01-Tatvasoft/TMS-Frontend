@@ -133,9 +133,10 @@ connection
   });
 
 connection.on("ReceiveNotification", function (id, message) {
+  debugger
   if (id == userProfile.id) {
     table.ajax.reload();
-    $("#notification-indicator").show();
+    $("#notification-indicator").removeClass('d-none');
     GetNotifications();
   }
 });
