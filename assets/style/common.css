@@ -50,20 +50,40 @@
 .active>.page-link{
   background-color: var(--textGray) !important;
   color: white !important;
-  border-color: black !important;
+  border-color: white !important;
+  box-shadow: none !important;
 }
 
-/*
+#notification-list>.dropdown-item{
+  background-color: white !important;
+  color: black !important;
+  width: 400px; 
+  overflow: hidden; 
+  white-space: normal;
+}
 
-.status-InProgress{
-  color: var(--textInProgress);
+#notification-list>.dropdown-item:focus{
+  color: black !important;
 }
-.status-Pending{
-  color: textPe;
+#notification-list>.dropdown-item.active{
+  /* background-color: var(--textGray) !important; */
+  color: black !important;
 }
-.status-Cancelled{
-  color: var(--textCancelled);
+
+.priority{
+  padding: 5px 10px;
 }
-.status-OnHold{
-  color: var(--textOnHold);
-} */
+.priority.High{
+  background-color: rgba(255, 0, 0, 0.534);
+}
+.priority.Low{
+  background-color: rgba(74, 138, 74, 0.623);
+}
+.priority.Medium{
+  background-color: rgba(217, 255, 0, 0.600);
+}
+
+.upload-file-label:hover{
+  background-color: rgba(128, 128, 128, 0.493);
+  /* color: white; */
+}

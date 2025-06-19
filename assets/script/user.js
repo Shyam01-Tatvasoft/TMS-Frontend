@@ -50,7 +50,7 @@ $(document).ready(function () {
       "<'row'<'col-sm-12'tr>>" +
       "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'p>>",
     language: {
-      info: "Total _TOTAL_ ",
+      info: "Total _TOTAL_ Records",
       lengthMenu:
         "Showing <select>" +
         '<option value="5">5</option>' +

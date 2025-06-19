@@ -9,13 +9,10 @@ var userProfile;
 $(function () {
   $("#navbar-container").load("../partials/navbar.html", function () {
     $(".navbar-tabs").each(function () {
-      console.log("Checking: ", this.href, " against ", window.location.href);
       $(this).removeClass("active-navbar");
-      if (this.href === window.location.href) {
-        console.log("Adding active class to: ", this);
+      if (this.href.toLowerCase() === window.location.href.toLowerCase()) {
         $(this).addClass("active-navbar");
-        console.log($(this));
-        }
+      }
     });
   });
   GetUserProfile();
@@ -73,18 +70,21 @@ function GetNotifications() {
 
         const notificationCount = notifications.length;
         if (notificationCount > 0) {
+          notificationList.append(`<p class="mx-2">Notifications (${notifications.length})</p>`)
           notifications.forEach((notification) => {
             notificationList.append(
-              `<li class="dropdown-item">
-              <p>Notifications (${notifications.length})</p>
+              `<li class="dropdown-item" style="">
               <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex flex-column">
-                <span class="me-2 fw-bold">${notification.taskType}</span>
-              <span class="">${notification.taskDescription}</span>
+              <span class="me-2 fw-bold">${notification.taskType}</span>
+              <span class="description">${notification.taskDescription}</span>
               </div>
-                <div>
-                <button class="btn btn-sm btn-outline-secondary" onclick="markAsRead(${notification.id})">Read</button>
-                </div>
+              <div>
+              <button class="btn btn-sm btn-outline-secondary" onclick="markAsRead(${notification.id})">Read</button>
+              </div>
+              </div>
+              <div class="mt-1">
+              <span class="badge rounded-pill text-bg-${notification.priority == "Low" ? "success" : notification.priority == "Medium" ? "primary" : "danger"}">${notification.priority}</span>
               </div>
               </li>`
             );

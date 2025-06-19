@@ -1,7 +1,7 @@
 const statusOptions = [
-  { label: "Pending", value: "1" , user: "true" },
-  { label: "In Progress", value: "2" , user: "true"},
-  { label: "On Hold", value: "4" , user: "true"},
+  { label: "Pending", value: "1", user: "true" },
+  { label: "In Progress", value: "2", user: "true" },
+  { label: "On Hold", value: "4", user: "true" },
   { label: "Cancelled", value: "5" },
 ];
 $(function () {
@@ -151,25 +151,26 @@ function editTask(taskId) {
     type: "GET",
     success: async function (response) {
       if (response) {
-        PopulateStatusDropdowns(response.status,"edit");
+        PopulateStatusDropdowns(response.status, "edit");
         $("#taskModalLabel").text("Edit Task");
+        $("#task-add-edit-button").text("Edit Task");
         $("#taskId").val(response.id);
         $("#userId").val(response.fkUserId);
         $("#userId").attr("disabled", true);
         $("#taskType").attr("disabled", true);
         $("#priority").val(response.priority);
-        $("#dueDate").val(
-          new Date(response.dueDate).toISOString().substring(0, 10)
-        );
+        $("#dueDate").val(response.dueDate.split("T")[0]);
         $("#dueDate").removeAttr("min");
 
         $("#description").val(response.description);
         $("#status").val(response.status);
-        if(userProfile.role == "Admin" && (response.status == 2 || response.status == 4))
-        {
-          $("#status").attr("disabled",true);
-        }else{
-          $("#status").attr("disabled",false);
+        if (
+          userProfile.role == "Admin" &&
+          (response.status == 2 || response.status == 4)
+        ) {
+          $("#status").attr("disabled", true);
+        } else {
+          $("#status").attr("disabled", false);
         }
         if (userProfile.role == "User") {
           $("#priority").attr("disabled", true);
@@ -214,8 +215,8 @@ function editTask(taskId) {
           `);
           $("#length").val(response.taskData.length);
           $("#size").val(response.taskData.size);
-            $("#length").attr("disabled", true);
-            $("#size").attr("disabled", true);
+          $("#length").attr("disabled", true);
+          $("#size").attr("disabled", true);
         }
 
         $("#taskModal").modal("show");
@@ -227,34 +228,31 @@ function editTask(taskId) {
   });
 }
 
-function PopulateStatusDropdowns(id,type) {
+function PopulateStatusDropdowns(id, type) {
   if (userProfile.role == "User") {
     $("#status").empty();
     $("#status").append('<option value="" hidden>Select Status</option>');
     statusOptions.forEach((status) => {
-      if(status.user == "true")
-      $("#status").append(
-        `<option value="${status.value}">${status.label}</option>`
-      );
+      if (status.user == "true")
+        $("#status").append(
+          `<option value="${status.value}">${status.label}</option>`
+        );
     });
   } else {
     $("#status").empty();
     $("#status").append('<option value="" hidden>Select Status</option>');
     statusOptions.forEach((status) => {
-      if(id == 1 || id == -1)
-      {
-        if(status.value != 2 && status.value != 4)
-        {
+      if (id == 1 || id == -1) {
+        if (status.value != 2 && status.value != 4) {
           $("#status").append(
             `<option value="${status.value}">${status.label}</option>`
           );
         }
-      }else{
+      } else {
         $("#status").append(
           `<option value="${status.value}">${status.label}</option>`
         );
       }
-        
     });
   }
 }
@@ -321,19 +319,25 @@ $(document).ready(function () {
         data: "userName",
         orderable: true,
         render: function (data) {
-          return `<span class="fw-bold">${data}</span>`;
+          return `<span>${data}</span>`;
         },
       },
-      { data: "description", orderable: false },
+      {
+        data: "description",
+        orderable: false,
+        render: function (data) {
+          return `<span class="description" style="width:50px !important">${data}</span>`;
+        },
+      },
       {
         data: "dueDate",
         render: function (data) {
-          return new Date(data).toLocaleDateString();
+          return new Date(data).toLocaleDateString("en-GB");
         },
       },
       {
         data: "status",
-        orderable: false,
+        orderable: true,
         render: function (data) {
           return `
             <span class="status-${data.replace(/\s+/g, "")}">${data}</span>
@@ -346,8 +350,10 @@ $(document).ready(function () {
         orderable: false,
         className: "text-center",
         render: function (data, type, row) {
-          if (row.status === "Completed" || row.status === "Cancelled" || row.status === "Review") {
-            return `<button class="btn border-0 p-0 me-md-1" onclick="seeDetails()" title="see details"><i class="fa-solid fa-eye"></i></button>`;
+          if (row.status === "Completed" || row.status === "Review") {
+            return `<a href="../templates/TaskReview.html?actionId=${row.taskActionId}"><button class="btn border-0 p-0 me-md-1"" title="see details"><i class="fa-solid fa-eye"></i></button></a>`;
+          } else if (row.status === "Cancelled") {
+            return ``;
           } else if (
             row.status == "In Progress" &&
             userProfile.role == "User"
@@ -376,7 +382,7 @@ $(document).ready(function () {
       "<'row'<'col-sm-12'tr>>" +
       "<'row d-flex justify-content-between'<'col-auto'l><'col-auto'p>>",
     language: {
-      info: "Total _TOTAL_ ",
+      info: "Total _TOTAL_ Records",
       lengthMenu:
         "Showing <select>" +
         '<option value="5">5</option>' +
@@ -400,9 +406,9 @@ $("#addTaskButton").click(function () {
   $("#dueDate").attr("disabled", false);
   $("#description").attr("disabled", false);
   var today = new Date();
-  PopulateStatusDropdowns(-1,"Add");
-  $("#status").val(1)
-  $("#status").attr("disabled",true);
+  PopulateStatusDropdowns(-1, "Add");
+  $("#status").val(1);
+  $("#status").attr("disabled", true);
   //disable past dates
   document
     .getElementById("dueDate")
@@ -412,6 +418,7 @@ $("#addTaskButton").click(function () {
   GetTaskTypes();
   $("#taskId").val("");
   $("#taskModalLabel").text("Add Task");
+  $("#task-add-edit-button").text("Add Task");
   $("#dynamicFields").empty();
   $(".text-danger").text("");
 });
@@ -437,10 +444,6 @@ $("#taskForm").validate({
       required: true,
       date: true,
     },
-    description: {
-      required: true,
-      maxlength: 500,
-    },
   },
   messages: {
     userId: {
@@ -461,10 +464,6 @@ $("#taskForm").validate({
     dueDate: {
       required: "Due Date is required",
       date: "Please enter a valid date",
-    },
-    description: {
-      required: "Description is required",
-      maxlength: "Description cannot exceed 500 characters",
     },
   },
   errorPlacement: function (error, element) {
@@ -521,7 +520,10 @@ $("#taskForm").on("submit", function (event) {
       toastr.success(
         isEdit ? "Task updated successfully!" : "Task added successfully!"
       );
-      table.ajax.reload();
+      const currentPage = table.page();
+      table.ajax.reload(function () {
+        table.page(currentPage).draw(false);
+      });
     },
     error: function (xhr) {
       if (xhr.status != 400) {
@@ -529,7 +531,12 @@ $("#taskForm").on("submit", function (event) {
         toastr.error("Error while assign task.");
       } else {
         toastr.clear();
-        toastr.error(xhr.responseText);
+        debugger
+        if(xhr.responseText.includes("holiday"))
+        {
+          toastr.error(xhr.responseText);
+        }
+        return;
       }
     },
   });
@@ -591,80 +598,138 @@ function ManageFileUpload(id) {
   GetTask(id).then((response) => {
     if (response) {
       taskData = response.taskData;
+      $("#uploaded-file-list").empty();
       $("#email-user-id").val(response.fkUserId);
       $("#email-task-id").val(response.id);
       $("#file-upload-form")[0].reset();
-      $(".upload-file-requirement").text("File length: " + taskData.length + ", File size: " + taskData.size + "MB" +",  File type: " + taskData.type)
-      $("#file-upload-modal").modal('show')
+      $(".upload-file-requirement").empty();
+      $(".upload-file-requirement").append(
+        `<p ><span class="fw-bold">No of required files:</span> ${taskData.length} </p>`
+      );
+      $(".upload-file-requirement").append(
+        `<p ><span class="fw-bold">Maximum size per file:</span> ${taskData.size} MB</p>`
+      );
+      $(".upload-file-requirement").append(
+        `<p ><span class="fw-bold">Supports file type:</span> ${
+          taskData.type.charAt(0).toUpperCase() + taskData.type.slice(1)
+        } ${
+          taskData.type == "image"
+            ? "( .jpg /.png/ .jpeg)"
+            : taskData.type == "pdf"
+            ? "(.pdf)"
+            : "(.xlsx)"
+        }</p>`
+      );
+      $("#file-upload-modal").modal("show");
     }
-  })
+  });
 }
 
 const allowedFileTypes = {
-  image: [".jpg", ".png"],
+  image: [".jpg", ".png", ".jpeg"],
   pdf: [".pdf"],
-  excel: [".xlsx"]
-}
+  excel: [".xlsx"],
+};
+
+$("#files").on("change", function () {
+  const files = $("#files")[0].files;
+  $("#uploaded-file-list").empty();
+  $("#uploaded-file-list").append("<hr/>");
+  $("#uploaded-file-list").append("<h4>Selected Files</h4>");
+  let tableBody = "";
+  for (let f of files) {
+    let name = f.name;
+    let size = (f.size/ 1024).toFixed(2) ; 
+    let type = f.name.split(".")[1] || "Unknown";
+
+    tableBody += `<tr>
+      <td>${name}</td>
+      <td>${size} KB</td>
+      <td>${type}</td>
+    </tr>`;
+  }
+
+  $("#uploaded-file-list").append(`
+    <table class="table ">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Size (MB)</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableBody}
+      </tbody>
+    </table>
+  `);
+});
 
 $("#file-upload-form").on("submit", function (e) {
   e.preventDefault();
   const files = $("#files")[0].files;
   const allowedTypes = allowedFileTypes[taskData.type] || [];
-  
+
   const maxSize = (parseInt(taskData.size) || 5) * 1024 * 1024;
   const maxLength = parseInt(taskData.length) || 5;
 
   if (files.length > maxLength) {
-      toastr.warning(`You can only upload ${maxLength} files.`);
-      return;
+    toastr.warning(`You can only upload ${maxLength} files.`);
+    return;
+  }
+
+  if (files.length < maxLength) {
+    toastr.warning(`You need to upload ${maxLength} files.`);
+    return;
   }
 
   for (let f of files) {
-      let ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
-      if (!allowedTypes.includes(ext)) {
-          toastr.warning(`File type ${ext} not allowed.`);
-          return;
-      }
-      if (f.size > maxSize) {
-          toastr.warning(`File ${f.name} exceeds max size ${taskData.size} MB`);
-          return;
-      }
+    let ext = f.name.substring(f.name.lastIndexOf(".")).toLowerCase();
+    if (!allowedTypes.includes(ext)) {
+      toastr.warning(`File type ${ext} not allowed.`);
+      return;
+    }
+    if (f.size > maxSize) {
+      toastr.warning(`File ${f.name} exceeds max size ${taskData.size} MB`);
+      return;
+    }
   }
   const formData = new FormData(this);
-  
+
   $.ajax({
-      url: "http://localhost:5093/api/task-action/upload-file",
-      method: "POST",
-      data: formData,
-      contentType: false,
-      processData: false,
-      success: function (res) {
-          toastr.success(res.message || "Uploaded successfully");
-          $("#file-upload-modal").modal('hide');
-          table.ajax.reload();
-      },
-      error: function (err) {
-          toastr.error(err.responseText || "Error uploading");
-      }
+    url: "http://localhost:5093/api/task-action/upload-file",
+    method: "POST",
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function (res) {
+      toastr.success(res.message || "Uploaded successfully");
+      $("#file-upload-modal").modal("hide");
+      table.row($(this).closest("tr")).invalidate().draw();
+    },
+    error: function (err) {
+      toastr.error(err.responseText || "Error uploading");
+    },
   });
 });
 
-
 function ManageEmailSend(id) {
   $("#send-mail-form")[0].reset();
-   GetTask(id).then((response) => {
-    if (response) {
-      $("#email-task-id").val(response.id);
-      $("#email-user-id").val(response.fkUserId);
-      $("#send-mail-modal").modal("show");
-      $("#email").val("admin1@yopmail.com");
-      $("#email").attr("readonly", true);
-      GetEmailType(response.fkTaskId, response.fkSubTaskId);
-      $(".send-mail-modal").modal("show");
-    }
-  }).catch((error) => {
-    toastr.error("Error fetching task:", error);
-  });
+  GetTask(id)
+    .then((response) => {
+      if (response) {
+        $("#email-task-id").val(response.id);
+        $("#email-user-id").val(response.fkUserId);
+        $("#send-mail-modal").modal("show");
+        $("#email").val("admin1@yopmail.com");
+        $("#email").attr("readonly", true);
+        GetEmailType(response.fkTaskId, response.fkSubTaskId);
+        $(".send-mail-modal").modal("show");
+      }
+    })
+    .catch((error) => {
+      toastr.error("Error fetching task:", error);
+    });
 }
 
 function GetTask(id) {
@@ -677,13 +742,12 @@ function GetTask(id) {
       },
       error: function (error) {
         reject(error);
-      }
+      },
     });
   });
 }
 
-
-function GetEmailType(id,subTaskId) {
+function GetEmailType(id, subTaskId) {
   $.ajax({
     url: "http://localhost:5093/api/tasks/get-sub-tasks/" + id,
     type: "GET",
@@ -692,9 +756,7 @@ function GetEmailType(id,subTaskId) {
         const subTasks = response;
         const selectSubject = $("#subject");
         selectSubject.empty();
-        selectSubject.append(
-          '<option value="" hidden>Subject</option>'
-        );
+        selectSubject.append('<option value="" hidden>Subject</option>');
         subTasks.forEach((subTask) => {
           selectSubject.append(
             `<option value="${subTask.id}">${subTask.name}</option>`
@@ -712,32 +774,33 @@ function GetEmailType(id,subTaskId) {
   });
 }
 
-
 $("#send-mail-form").on("submit", function (event) {
   event.preventDefault();
-    var emailDto = {
-      Email: $("#email").val(),
-      Subject: $("#subject option:selected").text(),
-      FkTaskId: $("#email-task-id").val(),
-      FkUserId: $("#email-user-id").val(),
-    }
-    $.ajax({
-      url: "http://localhost:5093/api/task-action/send-email",
-      type: "POST",
-      data: JSON.stringify(emailDto),
-      contentType: "application/json",
-      success: function (response) {
-        toastr.success("Email sent successfully!");
-        $("#send-mail-modal").modal("hide");
-        table.ajax.reload();
-      },
-      error: function (xhr) {
-        toastr.error("Error while sending email.");
-      },
-    });
+  var emailDto = {
+    Email: $("#email").val(),
+    Subject: $("#subject option:selected").text(),
+    FkTaskId: $("#email-task-id").val(),
+    FkUserId: $("#email-user-id").val(),
+  };
+  $.ajax({
+    url: "http://localhost:5093/api/task-action/send-email",
+    type: "POST",
+    data: JSON.stringify(emailDto),
+    contentType: "application/json",
+    success: function (response) {
+      toastr.success("Email sent successfully!");
+      $("#send-mail-modal").modal("hide");
+      table.ajax.reload();
+    },
+    error: function (xhr) {
+      toastr.error("Error while sending email.");
+    },
   });
+});
 
-
-
-const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+const tooltipTriggerList = document.querySelectorAll(
+  '[data-bs-toggle="tooltip"]'
+);
+const tooltipList = [...tooltipTriggerList].map(
+  (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+);
