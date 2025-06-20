@@ -6,7 +6,7 @@ function getAuthToken() {
 var authToken = getAuthToken();
 
 var userProfile;
-$(function () {
+$(async function () {
   $("#navbar-container").load("../partials/navbar.html", function () {
     $(".navbar-tabs").each(function () {
       $(this).removeClass("active-navbar");
@@ -15,10 +15,10 @@ $(function () {
       }
     });
   });
-  GetUserProfile();
+  await GetUserProfile();
 });
 
-function GetUserProfile()
+async function GetUserProfile()
 {
   $.ajax({
     url: "http://localhost:5093/api/user/get-user",
@@ -38,7 +38,7 @@ function GetUserProfile()
           $(".profile-photo").attr("src", "../images/profile.png");
         }
         userProfile = response.result;
-
+        document.cookie = `role=${response.result.role}`;
         GetNotifications();
         manageAuthentication();
       }
@@ -76,6 +76,7 @@ function GetNotifications() {
               `<li class="dropdown-item" style="">
               <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex flex-column">
+              ${userProfile.role == "Admin" ? `<p class="d-flex mb-0 gap-1"><span class="fw-bold">${notification.userName} </span>` + "<span>performed this task.</span></p>" : ""}
               <span class="me-2 fw-bold">${notification.taskType}</span>
               <span class="description">${notification.taskDescription}</span>
               </div>
@@ -85,6 +86,9 @@ function GetNotifications() {
               </div>
               <div class="mt-1">
               <span class="badge rounded-pill text-bg-${notification.priority == "Low" ? "success" : notification.priority == "Medium" ? "primary" : "danger"}">${notification.priority}</span>
+              ${notification.status == "Completed" ? '<span class="badge rounded-pill text-bg-success">Approved</span>' : ""}
+              ${userProfile.role == "Admin" && notification.status == "Review" ? '<span class="badge rounded-pill text-bg-warning">Under Review</span>' : ""}
+              ${userProfile.role == "User" && notification.status == "Pending" ? '<span class="badge rounded-pill text-bg-warning">New Task Assigned</span>' : ""}
               </div>
               </li>`
             );
@@ -160,7 +164,8 @@ $(document).on("click", "#logout-btn", function () {
         document.cookie =
           "AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie =
-          "AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None;";
+        "AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None;";
+        document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         window.location.href = "/";
       }
     },

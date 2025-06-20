@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task Review</title>
     <!-- ICON -->
     <link
@@ -39,42 +39,164 @@
     <script src="../lib/jquery/dist/jquery.min.js"></script>
     <script src="../lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="../lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="navbar-container"></div>
 
     <section class="container-fluid">
-        <div id="taskActionDetails" class="card p-md-3 shadow bg-secondary-subtle">
-            <h2>Task Action Detail</h2>
-            <p><strong>User:</strong> <span id="user-full-name"></span></p>
-            <p><strong>Task:</strong> <span id="task-name"></span></p>
-            <p><strong>Submitted At:</strong> <span id="submitted-at"></span></p>
-        
-            <div id="emailDetails" style="display:none;">
-                <h4>Email Details</h4>
-                <p><strong>To:</strong> <span id="emailTo"></span></p>
-                <p><strong>Subject:</strong> <span id="emailSubject"></span></p>
-                <pre id="emailBody"></pre>
-            </div>
-        
-            <div id="fileListDetails" style="display:none;">
-                <h4>Uploaded Files</h4>
-                <ul id="uploadedFilesList"></ul>
-            </div>
-            <div>
-                <a href="javascript:history.back()"
-                    class="btn btn-outline-dark">Go
-                    Back</a>
-            </div>
+      <div
+        id="taskActionDetails"
+        class="card p-md-3 shadow bg-secondary-subtle"
+      >
+        <h3>Task Action Detail</h3>
+        <p><strong>User:</strong> <span id="user-full-name"></span></p>
+        <p><strong>Task:</strong> <span id="task-name"></span></p>
+        <p><strong>Submitted At:</strong> <span id="submitted-at"></span></p>
+
+        <div id="emailDetails" style="display: none">
+          <h4>Email Details</h4>
+          <p><strong>To:</strong> <span id="emailTo"></span></p>
+          <p><strong>Subject:</strong> <span id="emailSubject"></span></p>
+          <pre id="emailBody"></pre>
         </div>
+
+        <div id="fileListDetails" style="display: none">
+          <h4>Uploaded Files</h4>
+          <ul id="uploadedFilesList"></ul>
+        </div>
+        <div>
+          <div id="task-review-buttons" class=""></div>
+
+          <a href="javascript:history.back()" class="btn btn-outline-dark mt-3"
+            ><i class="fa-solid fa-less-than me-2"></i>Back</a
+          >
+        </div>
+      </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>    <script src="../script/Endpoints.js"></script>
+    <!-- TASK APPROVE MODAL -->
+    <div
+      class="modal fade"
+      id="approveTaskModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+              Approve Confirmation
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="text-center">
+            <i class="fa-solid fa-circle-check fa-3x text-success"></i>
+          </div>
+          <div class="modal-body text-center p-1">
+            <p class="fw-bold">Make sure all the task details are proper !</p>
+            <p>Check the details are fullfil with task requirements.</p>
+          </div>
+          <div class="modal-footer d-flex justify-content-center border-0">
+            <button
+              type="button"
+              class="btn btn-success"
+              id="approve-task-btn"
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK REASSIGN MODAL -->
+    <div
+      class="modal fade"
+      id="reassignTaskModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+              Reassign Task
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-2">
+            <form method="post" id="reassign-task-form">
+              <input type="hidden" name="TaskId" id="reassign-task-id" />
+              <input type="hidden" name="UserId" id="reassign-user-id" />
+              <div class="form-floating">
+                <textarea
+                  class="form-control"
+                  id="comments"
+                  rows="3"
+                  name="Comments"
+                  placeholder="Write your comments here."
+                  required
+                ></textarea>
+                <label for="comments" class="form-label">Comments</label>
+              </div>
+              <div class="d-flex justify-content-center mt-3">
+                <button
+                  type="submit"
+                  class="btn btn-success me-2"
+                >
+                  Reassign
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-primary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+          <div
+            class="modal-footer d-flex justify-content-center border-0"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+      integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+      integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+      crossorigin="anonymous"
+    ></script>
+    <script src="../script/Endpoints.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="../script/common.js"></script>
     <script src="../script/TaskReview.js"></script>
-</body>
+  </body>
 </html>

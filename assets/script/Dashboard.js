@@ -4,6 +4,7 @@ const statusOptions = [
   { label: "On Hold", value: "4", user: "true" },
   { label: "Cancelled", value: "5" },
 ];
+var role = document.cookie.split('; ').find(row => row.startsWith('role=')).split('=')[1];
 $(function () {
   $("#footer-placeholder").load("../partials/footer.html");
 });
@@ -165,14 +166,14 @@ function editTask(taskId) {
         $("#description").val(response.description);
         $("#status").val(response.status);
         if (
-          userProfile.role == "Admin" &&
+          role == "Admin" &&
           (response.status == 2 || response.status == 4)
         ) {
           $("#status").attr("disabled", true);
         } else {
           $("#status").attr("disabled", false);
         }
-        if (userProfile.role == "User") {
+        if (role == "User") {
           $("#priority").attr("disabled", true);
           $("#dueDate").attr("disabled", true);
           $("#description").attr("disabled", true);
@@ -229,7 +230,7 @@ function editTask(taskId) {
 }
 
 function PopulateStatusDropdowns(id, type) {
-  if (userProfile.role == "User") {
+  if (role == "User") {
     $("#status").empty();
     $("#status").append('<option value="" hidden>Select Status</option>');
     statusOptions.forEach((status) => {
@@ -295,7 +296,9 @@ $("#taskType").change(function () {
 });
 
 var table;
-$(document).ready(function () {
+$(document).ready( function () {
+  var isAdmin;
+
   table = $("#taskTable").DataTable({
     processing: true,
     serverSide: true,
@@ -356,7 +359,7 @@ $(document).ready(function () {
             return ``;
           } else if (
             row.status == "In Progress" &&
-            userProfile.role == "User"
+            role == "User"
           ) {
             if (row.taskName == "Upload File") {
               return `<button class="btn border-0 p-0 me-md-1" onclick="PerformTask(${data}, '${row.taskName}')" title="upload file"><i class="fa-solid fa-upload"></i></button>
@@ -374,6 +377,12 @@ $(document).ready(function () {
             </button>`;
           }
         },
+      },
+    ],
+    columnDefs: [
+      {
+        targets: 2,
+        visible: role == "Admin",
       },
     ],
     pageLength: 5,
@@ -542,6 +551,19 @@ $("#taskForm").on("submit", function (event) {
   });
 });
 
+
+function dtRenderRowNoAjax(tableId, rowId, rowNewData, setResources = true) {
+  let dataTable = $(`#${tableId}`).DataTable();
+  let row = $(`#${tableId} #${rowId}`).get(0);
+  if (row) { //These will update row data() with new values;
+    let rowData = dataTable.row(row).data();
+    Object.assign(rowData, rowNewData); // merge new data to old row data.
+    dataTable.row(row).invalidate(); // re-rendering the row without refreshing the table
+    if (setResources)
+      setAllResources(row);
+  }
+}
+
 $(document).ready(function () {
   $("#taskType").on("change", function () {
     const taskType = $(this).val();
@@ -586,7 +608,7 @@ $(document).ready(function () {
 });
 
 function PerformTask(id, taskName) {
-  if (userProfile.role == "User" && taskName == "Upload File") {
+  if (role == "User" && taskName == "Upload File") {
     ManageFileUpload(id);
   } else {
     ManageEmailSend(id);
@@ -599,9 +621,10 @@ function ManageFileUpload(id) {
     if (response) {
       taskData = response.taskData;
       $("#uploaded-file-list").empty();
+      $("#file-upload-form")[0].reset();
       $("#email-user-id").val(response.fkUserId);
       $("#email-task-id").val(response.id);
-      $("#file-upload-form")[0].reset();
+      $("#email-task-action-id").val(response.fkTaskActionId);
       $(".upload-file-requirement").empty();
       $(".upload-file-requirement").append(
         `<p ><span class="fw-bold">No of required files:</span> ${taskData.length} </p>`
@@ -720,6 +743,7 @@ function ManageEmailSend(id) {
       if (response) {
         $("#email-task-id").val(response.id);
         $("#email-user-id").val(response.fkUserId);
+        $("#email-task-action-id").val(response.fkTaskActionId);
         $("#send-mail-modal").modal("show");
         $("#email").val("admin1@yopmail.com");
         $("#email").attr("readonly", true);
@@ -781,6 +805,7 @@ $("#send-mail-form").on("submit", function (event) {
     Subject: $("#subject option:selected").text(),
     FkTaskId: $("#email-task-id").val(),
     FkUserId: $("#email-user-id").val(),
+    TaskActionId: $("#email-task-action-id").val(),
   };
   $.ajax({
     url: "http://localhost:5093/api/task-action/send-email",
